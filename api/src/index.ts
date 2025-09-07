@@ -1,3 +1,4 @@
+import "dotenv/config"; // Load .env at startup
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
@@ -8,7 +9,29 @@ import { ok } from "./lib/http";
 
 const app = new Hono();
 
-app.use("*", cors());
+// Hackathon: Surface exceptions to clients for easier debugging
+app.onError((err, c) => {
+  // Log server-side
+  console.error("Unhandled error:", err);
+  const body = {
+    ok: false,
+    error: "internal_error",
+    exception: err.name,
+    message: err.message,
+    stack: err.stack ?? "",
+    path: c.req.path,
+    method: c.req.method,
+  };
+  return c.json(body, 500);
+});
+
+app.use(
+  "*",
+  cors({
+    origin: "*",
+    allowHeaders: ["Content-Type", "X-User-Id"],
+  }),
+);
 app.use("*", logger());
 
 app.get("/healthz", (c) => ok(c));

@@ -12,22 +12,42 @@ import { z } from "zod";
 const ctrl = new RideController();
 export const rideRoutes = new Hono();
 
-rideRoutes.get("/", zValidator("query", ListRidesQuerySchema), (c) => ctrl.list(c));
-rideRoutes.post("/", zValidator("json", CreateRideSchema), (c) => ctrl.create(c));
-rideRoutes.get("/:id", zValidator("param", z.object({ id: RideIdParamSchema })), (c) =>
-  ctrl.detail(c),
-);
-rideRoutes.post("/:id/join", zValidator("param", z.object({ id: RideIdParamSchema })), (c) =>
-  ctrl.join(c),
-);
-rideRoutes.post("/:id/leave", zValidator("param", z.object({ id: RideIdParamSchema })), (c) =>
-  ctrl.leave(c),
-);
-rideRoutes.delete("/:id", zValidator("param", z.object({ id: RideIdParamSchema })), (c) =>
-  ctrl.remove(c),
-);
+rideRoutes.get("/", zValidator("query", ListRidesQuerySchema), (c) => {
+  const q = c.req.valid("query");
+  return ctrl.list(c, q);
+});
+
+rideRoutes.post("/", zValidator("json", CreateRideSchema), (c) => {
+  const input = c.req.valid("json");
+  return ctrl.create(c, input);
+});
+
+rideRoutes.get("/:id", zValidator("param", z.object({ id: RideIdParamSchema })), (c) => {
+  const { id } = c.req.valid("param");
+  return ctrl.detail(c, id);
+});
+
+rideRoutes.post("/:id/join", zValidator("param", z.object({ id: RideIdParamSchema })), (c) => {
+  const { id } = c.req.valid("param");
+  return ctrl.join(c, id);
+});
+
+rideRoutes.post("/:id/leave", zValidator("param", z.object({ id: RideIdParamSchema })), (c) => {
+  const { id } = c.req.valid("param");
+  return ctrl.leave(c, id);
+});
+
+rideRoutes.delete("/:id", zValidator("param", z.object({ id: RideIdParamSchema })), (c) => {
+  const { id } = c.req.valid("param");
+  return ctrl.remove(c, id);
+});
 
 export const meRoutes = new Hono();
-meRoutes.get("/rides", zValidator("query", z.object({ role: RoleSchema }).partial()), (c) =>
-  ctrl.listMine(c),
+meRoutes.get(
+  "/rides",
+  zValidator("query", z.object({ role: RoleSchema }).partial()),
+  (c) => {
+    const { role = "all" } = c.req.valid("query");
+    return ctrl.listMine(c, role);
+  },
 );

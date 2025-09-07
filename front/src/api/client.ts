@@ -1,22 +1,14 @@
-// Simple switchable API client. For hackathon, mock is default.
-import * as mock from "./mock";
+import * as rest from "./rest";
 export * from "./types";
 
-const USE_MOCK = (import.meta as any).env?.VITE_USE_MOCK !== "0"; // default true
-
-// Future: add real fetch implementation and toggle by VITE_USE_MOCK=0
-
+// Real API client only. Mock removed.
 export const api = {
-  listRides: mock.listRides,
-  createRide: mock.createRide,
-  getRide: mock.getRide,
-  joinRide: mock.joinRide,
-  leaveRide: mock.leaveRide,
-  deleteRide: mock.deleteRide,
-  listMyRides: mock.listMyRides,
+  listRides: rest.listRides,
+  createRide: rest.createRide,
+  getRide: rest.getRide,
+  joinRide: rest.joinRide,
+  leaveRide: rest.leaveRide,
+  deleteRide: rest.deleteRide,
+  listMyRides: rest.listMyRides,
+  ensureUser: rest.ensureUser,
 };
-
-export function isMock() {
-  return USE_MOCK;
-}
-

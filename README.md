@@ -119,14 +119,10 @@ flowchart TD
   C -->|削除(運転者)| A
 ```
 
-## フロントのAPIモック
-- 目的: APIサーバー未実装でもUI開発を先行できるようにする。
-- 仕組み: `front/src/api/mock.ts` にインメモリデータを保持。`front/src/api/client.ts` から利用。
-- 特徴:
-  - タブごとに独立（リロードで初期化）。
-  - 簡易レイテンシ（~150ms）付き。
-  - README 記載のエンドポイント相当の関数を提供。
+## フロントのAPI接続
+- `front/src/api/client.ts` は実APIのみを使用。
+- 接続先は `front/.env` の `VITE_API_BASE` で指定（例: `http://localhost:8787`）。
+- 認証は `X-User-Id` ヘッダーで送信（ハッカソン仕様）。
 - 使い方（ページから呼び出す想定）:
   - `import { api } from "./api/client";`
   - 例: `api.listRides({ destination: "shonandai" }, userId)`
-- トグル: `VITE_USE_MOCK`（デフォルトON）。実サーバ接続時は `VITE_USE_MOCK=0` にし、`client.ts` に fetch 実装を追加。

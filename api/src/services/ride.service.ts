@@ -1,5 +1,5 @@
 import type { CreateRideInput } from "../lib/validate";
-import type { DbClient, RideWithMembers } from "../lib/db-client";
+import type { DbClient } from "../lib/db-client";
 import { canJoin } from "../domain/ride";
 
 export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string };
@@ -113,7 +113,7 @@ export class RideService {
       joined: boolean;
     }>
   > {
-    const r = await this.db.findRideById(id, { withMembers: true });
+    const r = await this.db.findRideWithMembers(id);
     if (!r) {
       return { ok: false, error: "not_found" };
     }
@@ -138,7 +138,7 @@ export class RideService {
   async join(uid: string, id: number): Promise<ServiceResult<true>> {
     const [user, ride] = await Promise.all([
       this.db.findUserById(uid),
-      this.db.findRideById(id, { withMembers: true }) as Promise<RideWithMembers | null>,
+      this.db.findRideWithMembers(id),
     ]);
     if (!user) {
       return { ok: false, error: "user_not_found" };

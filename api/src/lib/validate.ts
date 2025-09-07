@@ -32,6 +32,8 @@ export const ListRidesQuerySchema = z.object({
   fromSpot: FromSpotSchema.optional(),
   date: YmdSchema.optional(),
 });
+export type ListRidesQuery = z.infer<typeof ListRidesQuerySchema>;
 
 export const RideIdParamSchema = z.coerce.number().int().positive();
 export const RoleSchema = z.enum(["driver", "member", "all"]).default("all");
+export type Role = z.infer<typeof RoleSchema>;

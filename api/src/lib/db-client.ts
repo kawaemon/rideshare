@@ -1,4 +1,5 @@
 import { getDb } from "./db";
+import type { Prisma } from "@prisma/client";
 
 // Domain types (Prisma-independent)
 export type User = { id: string };
@@ -43,10 +44,8 @@ export interface DbClient {
     capacity: number;
     note?: string;
   }): Promise<Ride>;
-  findRideById(
-    id: number,
-    opts?: { withMembers?: boolean },
-  ): Promise<Ride | RideWithMembers | null>;
+  findRideById(id: number): Promise<Ride | null>;
+  findRideWithMembers(id: number): Promise<RideWithMembers | null>;
   deleteRide(id: number): Promise<void>;
 
   // Ride members
@@ -68,7 +67,7 @@ class PrismaDbClient implements DbClient {
 
   async listRides(filter?: RideFilter): Promise<Ride[]> {
     const db = getDb();
-    const where: any = {};
+    const where: Prisma.RideWhereInput = {};
     if (filter?.destination) {
       where.destination = filter.destination;
     }
@@ -91,7 +90,7 @@ class PrismaDbClient implements DbClient {
 
   async listRidesWithRelations(filter?: RideFilter): Promise<RideWithMembers[]> {
     const db = getDb();
-    const where: any = {};
+    const where: Prisma.RideWhereInput = {};
     if (filter?.destination) {
       where.destination = filter.destination;
     }
@@ -109,7 +108,7 @@ class PrismaDbClient implements DbClient {
       orderBy: { departsAt: "asc" },
       include: { driver: true, members: true },
     });
-    return rides as unknown as RideWithMembers[];
+    return rides as RideWithMembers[];
   }
 
   async createRide(data: {
@@ -122,19 +121,13 @@ class PrismaDbClient implements DbClient {
   }): Promise<Ride> {
     const db = getDb();
     const ride = await db.ride.create({ data, include: { driver: true } });
-    return ride as unknown as Ride;
+    return ride as Ride;
   }
 
-  async findRideById(
-    id: number,
-    opts?: { withMembers?: boolean },
-  ): Promise<Ride | RideWithMembers | null> {
+  async findRideById(id: number): Promise<Ride | null> {
     const db = getDb();
-    const ride = await db.ride.findUnique({
-      where: { id },
-      include: { driver: true, members: Boolean(opts?.withMembers) },
-    });
-    return ride as unknown as Ride | RideWithMembers | null;
+    const ride = await db.ride.findUnique({ where: { id }, include: { driver: true } });
+    return ride as Ride | null;
   }
 
   async deleteRide(id: number): Promise<void> {
@@ -145,18 +138,27 @@ class PrismaDbClient implements DbClient {
   async addRideMember(rideId: number, userId: string): Promise<RideMember> {
     const db = getDb();
     const rec = await db.rideMember.create({ data: { rideId, userId } });
-    return rec as unknown as RideMember;
+    return rec;
   }
 
   async findRideMember(rideId: number, userId: string): Promise<RideMember | null> {
     const db = getDb();
     const rec = await db.rideMember.findUnique({ where: { rideId_userId: { rideId, userId } } });
-    return rec as unknown as RideMember | null;
+    return rec;
   }
 
   async deleteRideMember(rideId: number, userId: string): Promise<void> {
     const db = getDb();
     await db.rideMember.delete({ where: { rideId_userId: { rideId, userId } } });
+  }
+
+  async findRideWithMembers(id: number): Promise<RideWithMembers | null> {
+    const db = getDb();
+    const ride = await db.ride.findUnique({
+      where: { id },
+      include: { driver: true, members: true },
+    });
+    return ride as RideWithMembers | null;
   }
 }
 

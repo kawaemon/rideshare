@@ -8,6 +8,8 @@ import {
   Group,
 } from "@mantine/core";
 import { useUser } from "../context/UserContext";
+import { api } from "../api/client";
+import { asUserId } from "../api/types";
 
 type Props = {
   opened: boolean;
@@ -19,11 +21,13 @@ export function LoginModal({ opened, onClose }: Props) {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
 
-  const onSubmit = (e?: FormEvent) => {
+  const onSubmit = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     // Validate only that it's non-empty; actual password validation is not required
     const trimmed = id.trim();
     if (!trimmed) return;
+    // Ensure user exists on backend (or mock)
+    await api.ensureUser(asUserId(trimmed));
     setUserId(trimmed);
     // reset form after successful login
     setId("");
