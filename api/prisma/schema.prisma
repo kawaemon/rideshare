@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite does not support native enums. Use String and validate in app.
+
+model User {
+  id         String       @id // ascii lowercase user id
+  Ride       Ride[]
+  RideMember RideMember[]
+}
+
+model Ride {
+  id          Int          @id @default(autoincrement())
+  driverId    String
+  destination String
+  fromSpot    String
+  departsAt   DateTime
+  capacity    Int
+  note        String       @default("")
+  createdAt   DateTime     @default(now())
+  driver      User         @relation(fields: [driverId], references: [id])
+  members     RideMember[]
+
+  @@index([departsAt])
+}
+
+model RideMember {
+  rideId   Int
+  userId   String
+  joinedAt DateTime @default(now())
+  ride     Ride     @relation(fields: [rideId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@id([rideId, userId])
+}
