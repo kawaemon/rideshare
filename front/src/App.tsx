@@ -1,16 +1,27 @@
-import { Button, Card, Group, Stack, Text, Title } from "@mantine/core";
+import { AppShell, Container } from "@mantine/core";
+import { Routes, Route } from "react-router-dom";
+import { AppHeader } from "./components/AppHeader";
+import { HomePage } from "./pages/HomePage";
+import { NewRidePage } from "./pages/NewRidePage";
+import { RideDetailPage } from "./pages/RideDetailPage";
+import { MePage } from "./pages/MePage";
 
 export default function App() {
   return (
-    <Stack p="md">
-      <Title order={2}>Hello, Rideshare!</Title>
-      <Card withBorder>
-        <Group justify="space-between">
-          <Text c="dimmed">Vite + React + Mantine</Text>
-          <Button>OK</Button>
-        </Group>
-      </Card>
-    </Stack>
+    <AppShell header={{ height: 60 }} padding="md">
+      <AppShell.Header>
+        <AppHeader />
+      </AppShell.Header>
+      <AppShell.Main>
+        <Container size="md">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/ride/new" element={<NewRidePage />} />
+            <Route path="/ride/:id" element={<RideDetailPage />} />
+            <Route path="/me" element={<MePage />} />
+          </Routes>
+        </Container>
+      </AppShell.Main>
+    </AppShell>
   );
 }
-
