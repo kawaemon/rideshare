@@ -11,6 +11,7 @@ datasource db {
 
 model User {
   id         String       @id // ascii lowercase user id
+  name       String       @default("")
   Ride       Ride[]
   RideMember RideMember[]
 }
