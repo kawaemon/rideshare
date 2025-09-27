@@ -1,4 +1,11 @@
-import { Title, Text, SegmentedControl, Stack, Alert, Group } from "@mantine/core";
+import {
+  Title,
+  Text,
+  SegmentedControl,
+  Stack,
+  Alert,
+  Group,
+} from "@mantine/core";
 import { useEffect, useState } from "react";
 import { api, type RideListItem } from "../api/client";
 import { asUserId } from "../api/types";
@@ -34,15 +41,25 @@ export function MePage() {
         <Title order={2}>My Rides</Title>
         <SegmentedControl
           value={role}
-          onChange={(value) => { if (isRoleFilter(value)) setRole(value); }}
-          data={[{ label: "All", value: "all" }, { label: "Driver", value: "driver" }, { label: "Member", value: "member" }]}
+          onChange={(value) => {
+            if (isRoleFilter(value)) setRole(value);
+          }}
+          data={[
+            { label: "All", value: "all" },
+            { label: "Driver", value: "driver" },
+            { label: "Member", value: "member" },
+          ]}
         />
       </Group>
       {error && <Alert color="red">{error}</Alert>}
       {!error && items.length === 0 && <Text c="dimmed">No rides.</Text>}
       <Stack>
         {items.map((ride) => (
-          <RideListItemCard key={ride.id} ride={ride} currentUserId={currentUser} />
+          <RideListItemCard
+            key={ride.id}
+            ride={ride}
+            currentUserId={currentUser}
+          />
         ))}
       </Stack>
     </Stack>

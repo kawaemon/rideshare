@@ -48,13 +48,24 @@ export function HomePage() {
     }
     if (ride.joined) {
       return (
-        <Button size="xs" variant="light" onClick={() => { void handleLeave(ride.id); }}>
+        <Button
+          size="xs"
+          variant="light"
+          onClick={() => {
+            void handleLeave(ride.id);
+          }}
+        >
           Leave
         </Button>
       );
     }
     return (
-      <Button size="xs" onClick={() => { void handleJoin(ride.id); }}>
+      <Button
+        size="xs"
+        onClick={() => {
+          void handleJoin(ride.id);
+        }}
+      >
         Join
       </Button>
     );
@@ -69,13 +80,20 @@ export function HomePage() {
     <Stack>
       <Group justify="space-between">
         <Title order={2}>Rides</Title>
-        <Button component={Link} to="/ride/new">Create</Button>
+        <Button component={Link} to="/ride/new">
+          Create
+        </Button>
       </Group>
       {error && <Alert color="red">{error}</Alert>}
       {!error && items.length === 0 && <Text c="dimmed">No rides.</Text>}
       <Stack>
         {items.map((r) => (
-          <RideListItemCard key={r.id} ride={r} currentUserId={currentUser} actions={renderActions(r)} />
+          <RideListItemCard
+            key={r.id}
+            ride={r}
+            currentUserId={currentUser}
+            actions={renderActions(r)}
+          />
         ))}
       </Stack>
     </Stack>

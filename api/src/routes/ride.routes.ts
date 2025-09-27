@@ -35,11 +35,7 @@ rideRoutes.delete("/:id", zValidator("param", z.object({ id: RideIdParamSchema }
 });
 
 export const meRoutes = new Hono();
-meRoutes.get(
-  "/rides",
-  zValidator("query", z.object({ role: RoleSchema }).partial()),
-  (c) => {
-    const { role = "all" } = c.req.valid("query");
-    return ctrl.listMine(c, role);
-  },
-);
+meRoutes.get("/rides", zValidator("query", z.object({ role: RoleSchema }).partial()), (c) => {
+  const { role = "all" } = c.req.valid("query");
+  return ctrl.listMine(c, role);
+});

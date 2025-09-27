@@ -17,7 +17,12 @@ export default function App() {
   useEffect(() => {
     const state = location.state as Record<string, unknown> | null;
     if (state && state["loginRequired"]) {
-      notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
+      notifications.show({
+        id: "login-required",
+        color: "red",
+        title: "Login required",
+        message: "Please login to continue",
+      });
       // Clear state to prevent duplicate notifications (incl. React StrictMode)
       navigate(location.pathname, { replace: true, state: {} });
     }
@@ -32,9 +37,23 @@ export default function App() {
         <Container size="md">
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/ride/new" element={<RequireLogin><NewRidePage /></RequireLogin>} />
+            <Route
+              path="/ride/new"
+              element={
+                <RequireLogin>
+                  <NewRidePage />
+                </RequireLogin>
+              }
+            />
             <Route path="/ride/:id" element={<RideDetailPage />} />
-            <Route path="/me" element={<RequireLogin><MePage /></RequireLogin>} />
+            <Route
+              path="/me"
+              element={
+                <RequireLogin>
+                  <MePage />
+                </RequireLogin>
+              }
+            />
           </Routes>
         </Container>
       </AppShell.Main>

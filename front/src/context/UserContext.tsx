@@ -17,4 +17,3 @@ export function useUser() {
   if (!v) throw new Error("useUser must be used within <UserProvider>");
   return v;
 }
-

@@ -16,7 +16,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8787";
 
 async function request<T>(
   path: string,
-  options: RequestInit & { userId?: string } = {}
+  options: RequestInit & { userId?: string } = {},
 ): Promise<Result<T>> {
   try {
     const headers: Record<string, string> = {
@@ -49,7 +49,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 
 function withDriver<T extends { driver: { id: string } }>(
-  obj: T
+  obj: T,
 ): T & { driver: User } {
   return {
     ...obj,
@@ -59,7 +59,7 @@ function withDriver<T extends { driver: { id: string } }>(
 
 export async function listRides(
   params: ListRidesParams = {},
-  currentUserId?: UserId
+  currentUserId?: UserId,
 ): Promise<Result<RideListItem[]>> {
   type Resp = Array<{
     id: number;
@@ -108,7 +108,7 @@ export async function listRides(
 
 export async function createRide(
   input: Omit<Ride, "id" | "driverId" | "createdAt">,
-  driverId: UserId
+  driverId: UserId,
 ): Promise<Result<RideWithDriver>> {
   type Resp = {
     id: number;
@@ -142,7 +142,7 @@ export async function createRide(
 
 export async function getRide(
   id: RideId,
-  currentUserId?: UserId
+  currentUserId?: UserId,
 ): Promise<Result<RideWithDriver & { membersCount: number; joined: boolean }>> {
   type Resp = {
     id: number;
@@ -183,7 +183,7 @@ export async function getRide(
 
 export async function joinRide(
   id: RideId,
-  userId: UserId
+  userId: UserId,
 ): Promise<Result<void>> {
   const r = await request<unknown>(`/rides/${id}/join`, {
     method: "POST",
@@ -195,7 +195,7 @@ export async function joinRide(
 
 export async function leaveRide(
   id: RideId,
-  userId: UserId
+  userId: UserId,
 ): Promise<Result<void>> {
   const r = await request<unknown>(`/rides/${id}/leave`, {
     method: "POST",
@@ -207,7 +207,7 @@ export async function leaveRide(
 
 export async function deleteRide(
   id: RideId,
-  userId: UserId
+  userId: UserId,
 ): Promise<Result<void>> {
   const r = await request<unknown>(`/rides/${id}`, {
     method: "DELETE",
@@ -219,7 +219,7 @@ export async function deleteRide(
 
 export async function listMyRides(
   role: "driver" | "member" | "all",
-  userId: UserId
+  userId: UserId,
 ): Promise<Result<RideListItem[]>> {
   type Resp = Array<{
     id: number;

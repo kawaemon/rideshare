@@ -26,7 +26,11 @@ function getRoleForViewer(ride: RideListItem, viewerId?: UserId): RideRole {
   return null;
 }
 
-export function RideListItemCard({ ride, currentUserId, actions }: RideListItemCardProps) {
+export function RideListItemCard({
+  ride,
+  currentUserId,
+  actions,
+}: RideListItemCardProps) {
   const role = getRoleForViewer(ride, currentUserId);
 
   return (
@@ -41,23 +45,26 @@ export function RideListItemCard({ ride, currentUserId, actions }: RideListItemC
                 to={`/ride/${ride.id}`}
                 style={{ textDecoration: "none" }}
               >
-                {labelDestination(ride.destination)} from {labelFromSpot(ride.fromSpot)}
+                {labelDestination(ride.destination)} from{" "}
+                {labelFromSpot(ride.fromSpot)}
               </Text>
               {role && (
-                <Badge color={role === "driver" ? "blue" : "teal"} variant="light">
+                <Badge
+                  color={role === "driver" ? "blue" : "teal"}
+                  variant="light"
+                >
                   {role === "driver" ? "Driver" : "Member"}
                 </Badge>
               )}
             </Group>
             <Text size="sm" c="dimmed">
-              departs {formatDateTimeJst(ride.departsAt)} JST / driver {ride.driver.name} / {ride.membersCount}/{ride.capacity}
+              departs {formatDateTimeJst(ride.departsAt)} JST / driver{" "}
+              {ride.driver.name} / {ride.membersCount}/{ride.capacity}
             </Text>
           </Stack>
           {actions}
         </Group>
-        {ride.note && (
-          <Text size="sm">{ride.note}</Text>
-        )}
+        {ride.note && <Text size="sm">{ride.note}</Text>}
       </Stack>
     </Paper>
   );

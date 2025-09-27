@@ -12,10 +12,20 @@ export function AppHeader() {
   return (
     <Group h={60} px="md" justify="space-between" wrap="nowrap">
       <Group gap="sm">
-        <Text fw={700} size="lg" component={Link} to="/" style={{ textDecoration: "none" }}>
+        <Text
+          fw={700}
+          size="lg"
+          component={Link}
+          to="/"
+          style={{ textDecoration: "none" }}
+        >
           Rideshare Demo
         </Text>
-        <Button variant={loc.pathname === "/" ? "filled" : "subtle"} component={Link} to="/">
+        <Button
+          variant={loc.pathname === "/" ? "filled" : "subtle"}
+          component={Link}
+          to="/"
+        >
           Home
         </Button>
         <Button
@@ -25,7 +35,12 @@ export function AppHeader() {
           onClick={(e) => {
             if (!userId) {
               e.preventDefault();
-              notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
+              notifications.show({
+                id: "login-required",
+                color: "red",
+                title: "Login required",
+                message: "Please login to continue",
+              });
             }
           }}
         >
@@ -38,23 +53,32 @@ export function AppHeader() {
           onClick={(e) => {
             if (!userId) {
               e.preventDefault();
-              notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
+              notifications.show({
+                id: "login-required",
+                color: "red",
+                title: "Login required",
+                message: "Please login to continue",
+              });
             }
           }}
         >
-          Me
+          My Rides
         </Button>
       </Group>
       <Group gap="sm" wrap="nowrap">
         {userId ? (
           <>
             <Text c="dimmed">user: {userId}</Text>
-            <Button variant="light" color="red" onClick={() => setUserId("")}>Logout</Button>
+            <Button variant="light" color="red" onClick={() => setUserId("")}>
+              Logout
+            </Button>
           </>
         ) : (
           <>
             <Text c="dimmed">not logged in</Text>
-            <Button onClick={open} variant="light">Login</Button>
+            <Button onClick={open} variant="light">
+              Login
+            </Button>
           </>
         )}
       </Group>

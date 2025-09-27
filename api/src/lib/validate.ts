@@ -12,7 +12,8 @@ export type Destination = z.infer<typeof DestinationSchema>;
 export const FromSpotSchema = z.union([CampusSpotSchema, StationSchema]);
 export type FromSpot = z.infer<typeof FromSpotSchema>;
 
-const isStation = (value: Destination | FromSpot): value is Station => StationSchema.safeParse(value).success;
+const isStation = (value: Destination | FromSpot): value is Station =>
+  StationSchema.safeParse(value).success;
 
 export const UserIdSchema = z.string().regex(/^[a-z0-9-]{1,32}$/);
 
@@ -37,7 +38,11 @@ export const CreateRideSchema = z
     const fromIsStation = isStation(value.fromSpot);
 
     if (destinationIsStation === fromIsStation) {
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "invalid_route", path: ["destination"] });
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "invalid_route",
+        path: ["destination"],
+      });
       ctx.addIssue({ code: z.ZodIssueCode.custom, message: "invalid_route", path: ["fromSpot"] });
     }
   });

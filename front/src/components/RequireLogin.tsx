@@ -8,7 +8,13 @@ export function RequireLogin({ children }: Props) {
   const location = useLocation();
 
   if (!userId) {
-    return <Navigate to="/" replace state={{ loginRequired: true, from: location.pathname }} />;
+    return (
+      <Navigate
+        to="/"
+        replace
+        state={{ loginRequired: true, from: location.pathname }}
+      />
+    );
   }
   return children;
 }

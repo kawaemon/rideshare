@@ -65,7 +65,7 @@ export function NewRidePage() {
         capacity,
         note,
       },
-      asUserId(userId)
+      asUserId(userId),
     );
     if (!res.ok) setError(res.error);
     else nav(`/ride/${res.data.id}`);
@@ -124,7 +124,7 @@ export function NewRidePage() {
               return;
             }
             const selected = destinationChoices.find(
-              (option) => option === value
+              (option) => option === value,
             );
             setDestination(selected ?? "");
           }}

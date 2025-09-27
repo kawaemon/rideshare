@@ -10,13 +10,18 @@ import { useUser } from "../context/UserContext";
 export function RideDetailPage() {
   const { id } = useParams();
   const { userId } = useUser();
-  const [ride, setRide] = useState<(RideWithDriver & { membersCount: number; joined: boolean }) | null>(null);
+  const [ride, setRide] = useState<
+    (RideWithDriver & { membersCount: number; joined: boolean }) | null
+  >(null);
   const [error, setError] = useState<string>("");
 
   const load = async () => {
     setError("");
     if (!id) return;
-    const res = await api.getRide(asRideId(Number(id)), userId ? asUserId(userId) : undefined);
+    const res = await api.getRide(
+      asRideId(Number(id)),
+      userId ? asUserId(userId) : undefined,
+    );
     if (!res.ok) setError(res.error);
     else setRide(res.data);
   };
@@ -42,13 +47,40 @@ export function RideDetailPage() {
           </Text>
           <Group>
             {userId && ride.driver.id === userId && (
-              <Button color="red" variant="light" onClick={async () => { const r = await api.deleteRide(ride.id, asUserId(userId)); if (!r.ok) setError(r.error); else setRide(null); }}>Delete</Button>
+              <Button
+                color="red"
+                variant="light"
+                onClick={async () => {
+                  const r = await api.deleteRide(ride.id, asUserId(userId));
+                  if (!r.ok) setError(r.error);
+                  else setRide(null);
+                }}
+              >
+                Delete
+              </Button>
             )}
             {userId && !ride.joined && (
-              <Button onClick={async () => { const r = await api.joinRide(ride.id, asUserId(userId)); if (!r.ok) setError(r.error); else load(); }}>Join</Button>
+              <Button
+                onClick={async () => {
+                  const r = await api.joinRide(ride.id, asUserId(userId));
+                  if (!r.ok) setError(r.error);
+                  else load();
+                }}
+              >
+                Join
+              </Button>
             )}
             {userId && ride.joined && (
-              <Button variant="light" onClick={async () => { const r = await api.leaveRide(ride.id, asUserId(userId)); if (!r.ok) setError(r.error); else load(); }}>Leave</Button>
+              <Button
+                variant="light"
+                onClick={async () => {
+                  const r = await api.leaveRide(ride.id, asUserId(userId));
+                  if (!r.ok) setError(r.error);
+                  else load();
+                }}
+              >
+                Leave
+              </Button>
             )}
           </Group>
         </>
