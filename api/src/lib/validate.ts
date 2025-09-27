@@ -24,8 +24,6 @@ export const IsoDateTimeSchema = z.string().refine(
   { message: "invalid_datetime" },
 );
 
-export const YmdSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
-
 export const CreateRideSchema = z
   .object({
     destination: DestinationSchema,
@@ -44,13 +42,6 @@ export const CreateRideSchema = z
     }
   });
 export type CreateRideInput = z.infer<typeof CreateRideSchema>;
-
-export const ListRidesQuerySchema = z.object({
-  destination: DestinationSchema.optional(),
-  fromSpot: FromSpotSchema.optional(),
-  date: YmdSchema.optional(),
-});
-export type ListRidesQuery = z.infer<typeof ListRidesQuerySchema>;
 
 export const RideIdParamSchema = z.coerce.number().int().positive();
 export const RoleSchema = z.enum(["driver", "member", "all"]).default("all");

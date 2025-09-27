@@ -61,10 +61,6 @@ export async function listRides(
   params: ListRidesParams = {},
   currentUserId?: UserId
 ): Promise<Result<RideListItem[]>> {
-  const q = new URLSearchParams();
-  if (params.destination) q.set("destination", params.destination);
-  if (params.fromSpot) q.set("fromSpot", params.fromSpot);
-  if (params.date) q.set("date", params.date);
   type Resp = Array<{
     id: number;
     driver: { id: string };
@@ -76,12 +72,12 @@ export async function listRides(
     membersCount: number;
     joined: boolean;
   }>;
-  const r = await request<Resp>(`/rides?${q.toString()}`, {
+  const r = await request<Resp>(`/rides`, {
     method: "GET",
     userId: currentUserId,
   });
   if (!r.ok) return r;
-  const data: RideListItem[] = r.data.map((x) => ({
+  const items: RideListItem[] = r.data.map((x) => ({
     id: asRideId(x.id),
     driver: { id: asUserId(x.driver.id), name: x.driver.id },
     destination: x.destination,
@@ -92,7 +88,22 @@ export async function listRides(
     membersCount: x.membersCount,
     joined: Boolean(x.joined),
   }));
-  return { ok: true, data };
+  const filtered = items.filter((item) => {
+    if (params.destination && item.destination !== params.destination) {
+      return false;
+    }
+    if (params.fromSpot && item.fromSpot !== params.fromSpot) {
+      return false;
+    }
+    if (params.date) {
+      const departureDate = item.departsAt.slice(0, 10);
+      if (departureDate !== params.date) {
+        return false;
+      }
+    }
+    return true;
+  });
+  return { ok: true, data: filtered };
 }
 
 export async function createRide(

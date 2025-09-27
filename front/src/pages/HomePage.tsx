@@ -1,22 +1,63 @@
 import { Title, Text, Button, Group, Stack, Alert } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { api, type RideListItem } from "../api/client";
-import { asUserId } from "../api/types";
+import { asUserId, type RideId } from "../api/types";
 import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
-import { labelDestination, labelFromSpot } from "../lib/labels";
-import { formatDateTimeJst } from "../lib/datetime";
+import { RideListItemCard } from "../components/ride-list-item";
 
 export function HomePage() {
   const { userId } = useUser();
+  const currentUser = userId ? asUserId(userId) : undefined;
   const [items, setItems] = useState<RideListItem[]>([]);
   const [error, setError] = useState<string>("");
 
   const load = async () => {
     setError("");
-    const res = await api.listRides({}, userId ? asUserId(userId) : undefined);
+    const res = await api.listRides({}, currentUser);
     if (!res.ok) setError(res.error);
     else setItems(res.data);
+  };
+
+  const handleJoin = async (rideId: RideId) => {
+    if (!currentUser) {
+      return;
+    }
+    setError("");
+    const rr = await api.joinRide(rideId, currentUser);
+    if (!rr.ok) setError(rr.error);
+    else await load();
+  };
+
+  const handleLeave = async (rideId: RideId) => {
+    if (!currentUser) {
+      return;
+    }
+    setError("");
+    const rr = await api.leaveRide(rideId, currentUser);
+    if (!rr.ok) setError(rr.error);
+    else await load();
+  };
+
+  const renderActions = (ride: RideListItem) => {
+    if (!currentUser) {
+      return undefined;
+    }
+    if (ride.driver.id === currentUser) {
+      return undefined;
+    }
+    if (ride.joined) {
+      return (
+        <Button size="xs" variant="light" onClick={() => { void handleLeave(ride.id); }}>
+          Leave
+        </Button>
+      );
+    }
+    return (
+      <Button size="xs" onClick={() => { void handleJoin(ride.id); }}>
+        Join
+      </Button>
+    );
   };
 
   useEffect(() => {
@@ -34,27 +75,7 @@ export function HomePage() {
       {!error && items.length === 0 && <Text c="dimmed">No rides.</Text>}
       <Stack>
         {items.map((r) => (
-          <Group key={r.id} justify="space-between">
-            <div>
-              <Text fw={600} component={Link} to={`/ride/${r.id}`} style={{ textDecoration: "none" }}>
-                {labelDestination(r.destination)} from {labelFromSpot(r.fromSpot)}
-              </Text>
-              <Text size="sm" c="dimmed">
-                departs {formatDateTimeJst(r.departsAt)} JST / driver {r.driver.name} / {r.membersCount}/{r.capacity}
-              </Text>
-              {r.note && (
-                <Text size="sm">{r.note}</Text>
-              )}
-            </div>
-            <Group>
-              {userId && !r.joined && (
-                <Button size="xs" onClick={async () => { const rr = await api.joinRide(r.id, asUserId(userId)); if (!rr.ok) setError(rr.error); else load(); }}>Join</Button>
-              )}
-              {userId && r.joined && (
-                <Button size="xs" variant="light" onClick={async () => { const rr = await api.leaveRide(r.id, asUserId(userId)); if (!rr.ok) setError(rr.error); else load(); }}>Leave</Button>
-              )}
-            </Group>
-          </Group>
+          <RideListItemCard key={r.id} ride={r} currentUserId={currentUser} actions={renderActions(r)} />
         ))}
       </Stack>
     </Stack>

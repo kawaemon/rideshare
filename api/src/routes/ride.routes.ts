@@ -1,21 +1,13 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { RideController } from "../controllers/ride.controller";
-import {
-  CreateRideSchema,
-  ListRidesQuerySchema,
-  RideIdParamSchema,
-  RoleSchema,
-} from "../lib/validate";
+import { CreateRideSchema, RideIdParamSchema, RoleSchema } from "../lib/validate";
 import { z } from "zod";
 
 const ctrl = new RideController();
 export const rideRoutes = new Hono();
 
-rideRoutes.get("/", zValidator("query", ListRidesQuerySchema), (c) => {
-  const q = c.req.valid("query");
-  return ctrl.list(c, q);
-});
+rideRoutes.get("/", (c) => ctrl.list(c));
 
 rideRoutes.post("/", zValidator("json", CreateRideSchema), (c) => {
   const input = c.req.valid("json");

@@ -7,12 +7,7 @@ export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: strin
 export class RideService {
   constructor(private readonly db: DbClient) {}
 
-  async list(params: {
-    destination?: string;
-    fromSpot?: string;
-    date?: string;
-    viewerId?: string | null;
-  }): Promise<
+  async list(params: { viewerId?: string | null }): Promise<
     ServiceResult<
       Array<{
         id: number;
@@ -27,20 +22,8 @@ export class RideService {
       }>
     >
   > {
-    const { destination, fromSpot, date, viewerId } = params;
-    let departsStart: Date | undefined;
-    let departsEnd: Date | undefined;
-    if (date) {
-      departsStart = new Date(`${date}T00:00:00.000Z`);
-      departsEnd = new Date(departsStart.getTime() + 24 * 60 * 60 * 1000);
-    }
-
-    const items = await this.db.listRidesWithRelations({
-      destination,
-      fromSpot,
-      departsStart,
-      departsEnd,
-    });
+    const { viewerId } = params;
+    const items = await this.db.listRidesWithRelations();
     const res = items.map((r) => ({
       id: r.id,
       driver: { id: r.driver.id },
