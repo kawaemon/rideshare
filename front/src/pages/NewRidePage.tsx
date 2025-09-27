@@ -27,7 +27,9 @@ import { useNavigate } from "react-router-dom";
 
 type RideDirection = "from_school" | "to_school";
 
-const rideDirectionOptions: Array<SegmentedControlItem & { value: RideDirection }> = [
+const rideDirectionOptions: Array<
+  SegmentedControlItem & { value: RideDirection }
+> = [
   { label: "From School", value: "from_school" },
   { label: "To School", value: "to_school" },
 ];
@@ -150,7 +152,7 @@ export function NewRidePage() {
       />
       <Button onClick={submit}>Create</Button>
       <Text c="dimmed">
-        Selected local time is converted to UTC automatically.
+        Selected local time is converted to JST automatically.
       </Text>
     </Stack>
   );
