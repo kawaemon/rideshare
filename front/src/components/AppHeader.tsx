@@ -26,7 +26,6 @@ export function AppHeader() {
             if (!userId) {
               e.preventDefault();
               notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
-              open();
             }
           }}
         >
@@ -40,7 +39,6 @@ export function AppHeader() {
             if (!userId) {
               e.preventDefault();
               notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
-              open();
             }
           }}
         >

@@ -11,10 +11,16 @@ import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
 import "@mantine/dates/styles.css";
 
+const notificationsTopOffset = 72;
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <MantineProvider defaultColorScheme="light">
-      <Notifications />
+      <Notifications
+        position="top-right"
+        style={{ top: notificationsTopOffset, pointerEvents: "none" }}
+        styles={{ notification: { pointerEvents: "all" } }}
+      />
       <BrowserRouter>
         <UserProvider>
           <App />
