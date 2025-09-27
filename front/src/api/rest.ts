@@ -190,7 +190,7 @@ export async function leaveRide(
     method: "POST",
     userId,
   });
-  if (!r.ok) return r as Result<void>;
+  if (!r.ok) return r;
   return { ok: true, data: undefined };
 }
 
@@ -202,7 +202,7 @@ export async function deleteRide(
     method: "DELETE",
     userId,
   });
-  if (!r.ok) return r as Result<void>;
+  if (!r.ok) return r;
   return { ok: true, data: undefined };
 }
 
@@ -242,6 +242,6 @@ export async function listMyRides(
 
 export async function ensureUser(userId: UserId): Promise<Result<void>> {
   const r = await request<{ id: string }>(`/me`, { method: "PUT", userId });
-  if (!r.ok) return r as Result<void>;
+  if (!r.ok) return r;
   return { ok: true, data: undefined };
 }
