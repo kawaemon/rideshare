@@ -5,6 +5,7 @@ import { asUserId } from "../api/types";
 import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
 import { labelDestination, labelFromSpot } from "../lib/labels";
+import { formatDateTimeJst } from "../lib/datetime";
 
 export function HomePage() {
   const { userId } = useUser();
@@ -39,7 +40,7 @@ export function HomePage() {
                 {labelDestination(r.destination)} from {labelFromSpot(r.fromSpot)}
               </Text>
               <Text size="sm" c="dimmed">
-                departs {new Date(r.departsAt).toLocaleString()} / driver {r.driver.name} / {r.membersCount}/{r.capacity}
+                departs {formatDateTimeJst(r.departsAt)} JST / driver {r.driver.name} / {r.membersCount}/{r.capacity}
               </Text>
               {r.note && (
                 <Text size="sm">{r.note}</Text>

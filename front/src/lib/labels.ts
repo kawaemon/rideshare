@@ -1,26 +1,21 @@
-import type { Destination, FromSpot } from "../api/types";
+import type { Destination, FromSpot, Location } from "../api/types";
 
-export function labelDestination(v: Destination): string {
-  switch (v) {
-    case "shonandai":
-      return "湘南台";
-    case "tsujido":
-      return "辻堂";
-    default:
-      return String(v);
-  }
+const locationLabels: Record<Location, string> = {
+  shonandai: "Shonandai Station",
+  tsujido: "Tsujido Station",
+  g_parking: "G Parking Lot",
+  delta_back: "Delta Building Rear",
+  main_cross: "Main Intersection",
+};
+
+function labelLocation(value: Location): string {
+  return locationLabels[value] ?? String(value);
 }
 
-export function labelFromSpot(v: FromSpot): string {
-  switch (v) {
-    case "g_parking":
-      return "G駐車場";
-    case "delta_back":
-      return "デルタ館裏";
-    case "main_cross":
-      return "正面交差点";
-    default:
-      return String(v);
-  }
+export function labelDestination(value: Destination): string {
+  return labelLocation(value);
 }
 
+export function labelFromSpot(value: FromSpot): string {
+  return labelLocation(value);
+}

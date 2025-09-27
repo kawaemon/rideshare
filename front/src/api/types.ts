@@ -1,5 +1,12 @@
-export type Destination = "shonandai" | "tsujido";
-export type FromSpot = "g_parking" | "delta_back" | "main_cross";
+export const stations = ["shonandai", "tsujido"] as const;
+export type Station = (typeof stations)[number];
+
+export const campusSpots = ["g_parking", "delta_back", "main_cross"] as const;
+export type CampusSpot = (typeof campusSpots)[number];
+
+export type Location = Station | CampusSpot;
+export type Destination = Location;
+export type FromSpot = Location;
 
 // Branded ID types (compile-time only)
 declare const UserIdBrand: unique symbol;

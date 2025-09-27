@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { api, type RideWithDriver } from "../api/client";
 import { asRideId, asUserId } from "../api/types";
 import { labelDestination, labelFromSpot } from "../lib/labels";
+import { formatDateTimeJst } from "../lib/datetime";
 import { useUser } from "../context/UserContext";
 
 export function RideDetailPage() {
@@ -35,7 +36,7 @@ export function RideDetailPage() {
         <>
           <Text>Destination: {labelDestination(ride.destination)}</Text>
           <Text>From: {labelFromSpot(ride.fromSpot)}</Text>
-          <Text>Departs: {new Date(ride.departsAt).toLocaleString()}</Text>
+          <Text>Departs: {formatDateTimeJst(ride.departsAt)} JST</Text>
           <Text>
             Driver: {ride.driver.name} / {ride.membersCount}/{ride.capacity}
           </Text>

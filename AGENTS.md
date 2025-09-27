@@ -2,6 +2,8 @@
 
 この AGENTS.md の変更は厳しく制限されており行ってはならない。
 
+- 作業終わりに何をしたかをまとめて報告する必要はない。「完了しました」と言うだけでいい。
+
 ## プロジェクト構成（TypeScript）
 
 - ルート: `api/`（Hono + Prisma + SQLite）, `front/`（Vite + React + Mantine）。

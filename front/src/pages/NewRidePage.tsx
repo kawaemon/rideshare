@@ -1,15 +1,41 @@
-import { Title, Text, Stack, TextInput, Select, NumberInput, Button, Alert, Group } from "@mantine/core";
+import {
+  Title,
+  Text,
+  Stack,
+  TextInput,
+  Select,
+  NumberInput,
+  Button,
+  Alert,
+  Group,
+  SegmentedControl,
+  type SegmentedControlItem,
+} from "@mantine/core";
 import { DateTimePicker } from "@mantine/dates";
-import { labelDestination } from "../lib/labels";
+import { labelDestination, labelFromSpot } from "../lib/labels";
 import { useState } from "react";
-import { api, type Destination, type FromSpot } from "../api/client";
+import {
+  api,
+  stations,
+  campusSpots,
+  type Destination,
+  type FromSpot,
+} from "../api/client";
 import { asUserId } from "../api/types";
 import { useUser } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 
+type RideDirection = "from_school" | "to_school";
+
+const rideDirectionOptions: Array<SegmentedControlItem & { value: RideDirection }> = [
+  { label: "From School", value: "from_school" },
+  { label: "To School", value: "to_school" },
+];
+
 export function NewRidePage() {
   const { userId } = useUser();
   const nav = useNavigate();
+  const [direction, setDirection] = useState<RideDirection>("from_school");
   const [destination, setDestination] = useState<Destination | "">("");
   const [fromSpot, setFromSpot] = useState<FromSpot | "">("");
   // DateTimePicker returns Date | null
@@ -17,6 +43,10 @@ export function NewRidePage() {
   const [capacity, setCapacity] = useState<number>(1);
   const [note, setNote] = useState<string>("");
   const [error, setError] = useState<string>("");
+
+  const destinationChoices =
+    direction === "from_school" ? stations : campusSpots;
+  const fromSpotChoices = direction === "from_school" ? campusSpots : stations;
 
   const submit = async () => {
     setError("");
@@ -33,7 +63,7 @@ export function NewRidePage() {
         capacity,
         note,
       },
-      asUserId(userId),
+      asUserId(userId)
     );
     if (!res.ok) setError(res.error);
     else nav(`/ride/${res.data.id}`);
@@ -43,27 +73,59 @@ export function NewRidePage() {
     <Stack>
       <Title order={2}>Create Ride</Title>
       {error && <Alert color="red">{error}</Alert>}
-      <Group grow>
-        <Select
-          label="Destination"
-          placeholder="Pick one"
-          data={[
-            { value: "shonandai", label: labelDestination("shonandai") },
-            { value: "tsujido", label: labelDestination("tsujido") },
-          ]}
-          value={destination}
-          onChange={(v) => setDestination((v ?? "") as Destination | "")}
+      <Stack gap={4}>
+        <Text size="sm" fw={500}>
+          Direction
+        </Text>
+        <SegmentedControl
+          fullWidth
+          data={rideDirectionOptions}
+          value={direction}
+          onChange={(value) => {
+            const nextDirection =
+              value === "to_school" ? "to_school" : "from_school";
+            setDirection(nextDirection);
+            setDestination("");
+            setFromSpot("");
+          }}
         />
+      </Stack>
+      <Group grow>
         <Select
           label="From"
           placeholder="Pick one"
-          data={[
-            { value: "g_parking", label: "G駐車場" },
-            { value: "delta_back", label: "デルタ館裏" },
-            { value: "main_cross", label: "正面交差点" },
-          ]}
+          data={fromSpotChoices.map((value) => ({
+            value,
+            label: labelFromSpot(value),
+          }))}
           value={fromSpot}
-          onChange={(v) => setFromSpot((v ?? "") as FromSpot | "")}
+          onChange={(value) => {
+            if (!value) {
+              setFromSpot("");
+              return;
+            }
+            const selected = fromSpotChoices.find((option) => option === value);
+            setFromSpot(selected ?? "");
+          }}
+        />
+        <Select
+          label="Destination"
+          placeholder="Pick one"
+          data={destinationChoices.map((value) => ({
+            value,
+            label: labelDestination(value),
+          }))}
+          value={destination}
+          onChange={(value) => {
+            if (!value) {
+              setDestination("");
+              return;
+            }
+            const selected = destinationChoices.find(
+              (option) => option === value
+            );
+            setDestination(selected ?? "");
+          }}
         />
       </Group>
       <DateTimePicker
@@ -75,10 +137,21 @@ export function NewRidePage() {
         minDate={new Date(Date.now() - 5 * 60 * 1000)}
         clearable
       />
-      <NumberInput label="Capacity" min={1} value={capacity} onChange={(v) => setCapacity(Number(v) || 1)} />
-      <TextInput label="Note" value={note} onChange={(e) => setNote(e.currentTarget.value)} />
+      <NumberInput
+        label="Capacity"
+        min={1}
+        value={capacity}
+        onChange={(v) => setCapacity(Number(v) || 1)}
+      />
+      <TextInput
+        label="Note"
+        value={note}
+        onChange={(e) => setNote(e.currentTarget.value)}
+      />
       <Button onClick={submit}>Create</Button>
-      <Text c="dimmed">Selected local time is converted to UTC automatically.</Text>
+      <Text c="dimmed">
+        Selected local time is converted to UTC automatically.
+      </Text>
     </Stack>
   );
 }

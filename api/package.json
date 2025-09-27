@@ -11,7 +11,8 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "format": "prettier --write .",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "typecheck": "tsc --noemit"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.1",
