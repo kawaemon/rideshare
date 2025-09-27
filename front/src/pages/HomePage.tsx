@@ -4,6 +4,7 @@ import { api, type RideListItem } from "../api/client";
 import { asUserId } from "../api/types";
 import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
+import { labelDestination, labelFromSpot } from "../lib/labels";
 
 export function HomePage() {
   const { userId } = useUser();
@@ -35,11 +36,14 @@ export function HomePage() {
           <Group key={r.id} justify="space-between">
             <div>
               <Text fw={600} component={Link} to={`/ride/${r.id}`} style={{ textDecoration: "none" }}>
-                {r.destination} from {r.fromSpot}
+                {labelDestination(r.destination)} from {labelFromSpot(r.fromSpot)}
               </Text>
               <Text size="sm" c="dimmed">
                 departs {new Date(r.departsAt).toLocaleString()} / driver {r.driver.name} / {r.membersCount}/{r.capacity}
               </Text>
+              {r.note && (
+                <Text size="sm">{r.note}</Text>
+              )}
             </div>
             <Group>
               {userId && !r.joined && (

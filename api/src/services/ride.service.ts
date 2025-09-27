@@ -21,6 +21,7 @@ export class RideService {
         fromSpot: string;
         departsAt: string;
         capacity: number;
+        note: string;
         membersCount: number;
         joined: boolean;
       }>
@@ -47,6 +48,7 @@ export class RideService {
       fromSpot: r.fromSpot,
       departsAt: r.departsAt.toISOString(),
       capacity: r.capacity,
+      note: r.note,
       membersCount: r.members?.length ?? 0,
       joined: viewerId ? Boolean(r.members?.some((m) => m.userId === viewerId)) : false,
     }));
@@ -187,6 +189,7 @@ export class RideService {
         fromSpot: string;
         departsAt: string;
         capacity: number;
+        note: string;
         membersCount: number;
         joined: boolean;
       }>
@@ -211,6 +214,7 @@ export class RideService {
       fromSpot: r.fromSpot,
       departsAt: r.departsAt.toISOString(),
       capacity: r.capacity,
+      note: r.note,
       membersCount: r.members.length,
       joined: r.members.some((m) => m.userId === uid),
     }));

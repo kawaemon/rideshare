@@ -72,6 +72,7 @@ export async function listRides(
     fromSpot: FromSpot;
     departsAt: string;
     capacity: number;
+    note: string;
     membersCount: number;
     joined: boolean;
   }>;
@@ -87,6 +88,7 @@ export async function listRides(
     fromSpot: x.fromSpot,
     departsAt: x.departsAt,
     capacity: x.capacity,
+    note: x.note ?? "",
     membersCount: x.membersCount,
     joined: Boolean(x.joined),
   }));
@@ -215,6 +217,7 @@ export async function listMyRides(
     fromSpot: FromSpot;
     departsAt: string;
     capacity: number;
+    note: string;
     membersCount: number;
     joined: boolean;
   }>;
@@ -230,6 +233,7 @@ export async function listMyRides(
     fromSpot: x.fromSpot,
     departsAt: x.departsAt,
     capacity: x.capacity,
+    note: x.note ?? "",
     membersCount: x.membersCount,
     joined: Boolean(x.joined),
   }));

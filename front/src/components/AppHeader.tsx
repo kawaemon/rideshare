@@ -3,6 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Link, useLocation } from "react-router-dom";
 import { useUser } from "../context/UserContext";
 import { LoginModal } from "./LoginModal";
+import { notifications } from "@mantine/notifications";
 
 export function AppHeader() {
   const { userId, setUserId } = useUser();
@@ -17,10 +18,32 @@ export function AppHeader() {
         <Button variant={loc.pathname === "/" ? "filled" : "subtle"} component={Link} to="/">
           Home
         </Button>
-        <Button variant={loc.pathname.startsWith("/ride/new") ? "filled" : "subtle"} component={Link} to="/ride/new">
+        <Button
+          variant={loc.pathname.startsWith("/ride/new") ? "filled" : "subtle"}
+          component={Link}
+          to="/ride/new"
+          onClick={(e) => {
+            if (!userId) {
+              e.preventDefault();
+              notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
+              open();
+            }
+          }}
+        >
           Create
         </Button>
-        <Button variant={loc.pathname.startsWith("/me") ? "filled" : "subtle"} component={Link} to="/me">
+        <Button
+          variant={loc.pathname.startsWith("/me") ? "filled" : "subtle"}
+          component={Link}
+          to="/me"
+          onClick={(e) => {
+            if (!userId) {
+              e.preventDefault();
+              notifications.show({ id: "login-required", color: "red", title: "Login required", message: "Please login to continue" });
+              open();
+            }
+          }}
+        >
           Me
         </Button>
       </Group>

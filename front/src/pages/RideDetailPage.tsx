@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { api, type RideWithDriver } from "../api/client";
 import { asRideId, asUserId } from "../api/types";
+import { labelDestination, labelFromSpot } from "../lib/labels";
 import { useUser } from "../context/UserContext";
 
 export function RideDetailPage() {
@@ -32,8 +33,8 @@ export function RideDetailPage() {
       {error && <Alert color="red">{error}</Alert>}
       {ride && (
         <>
-          <Text>Destination: {ride.destination}</Text>
-          <Text>From: {ride.fromSpot}</Text>
+          <Text>Destination: {labelDestination(ride.destination)}</Text>
+          <Text>From: {labelFromSpot(ride.fromSpot)}</Text>
           <Text>Departs: {new Date(ride.departsAt).toLocaleString()}</Text>
           <Text>
             Driver: {ride.driver.name} / {ride.membersCount}/{ride.capacity}

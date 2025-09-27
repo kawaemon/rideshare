@@ -38,6 +38,7 @@ export interface RideListItem {
   fromSpot: FromSpot;
   departsAt: string;
   capacity: number;
+  note: string;
   membersCount: number;
   joined?: boolean;
 }

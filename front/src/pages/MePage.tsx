@@ -2,6 +2,7 @@ import { Title, Text, SegmentedControl, Stack, Alert } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { api, type RideListItem } from "../api/client";
 import { asUserId } from "../api/types";
+import { labelDestination, labelFromSpot } from "../lib/labels";
 import { useUser } from "../context/UserContext";
 
 export function MePage() {
@@ -35,7 +36,7 @@ export function MePage() {
       {!error && items.length === 0 && <Text c="dimmed">No rides.</Text>}
       {items.map((r) => (
         <Text key={r.id}>
-          {r.destination} from {r.fromSpot} at {new Date(r.departsAt).toLocaleString()} ({r.membersCount}/{r.capacity})
+          {labelDestination(r.destination)} from {labelFromSpot(r.fromSpot)} at {new Date(r.departsAt).toLocaleString()} ({r.membersCount}/{r.capacity})
         </Text>
       ))}
     </Stack>
