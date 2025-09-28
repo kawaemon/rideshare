@@ -1,6 +1,19 @@
-import { Title, Text, Group, Button, Stack, Alert } from "@mantine/core";
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import {
+  Title,
+  Text,
+  Group,
+  Button,
+  Stack,
+  Alert,
+  Container,
+  Paper,
+  Badge,
+  Divider,
+  Progress,
+  LoadingOverlay,
+} from "@mantine/core";
+import { Link, useParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, type RideWithDriver } from "../api/client";
 import { asRideId, asUserId } from "../api/types";
 import { labelDestination, labelFromSpot } from "../lib/labels";
@@ -10,81 +23,262 @@ import { useUser } from "../context/UserContext";
 export function RideDetailPage() {
   const { id } = useParams();
   const { userId } = useUser();
+  const viewerUserId = useMemo(() => {
+    return userId ? asUserId(userId) : undefined;
+  }, [userId]);
   const [ride, setRide] = useState<
     (RideWithDriver & { membersCount: number; joined: boolean }) | null
   >(null);
   const [error, setError] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  const load = async () => {
+  const load = useCallback(async () => {
+    if (!id) {
+      setRide(null);
+      return;
+    }
+
+    const numericId = Number(id);
+    if (Number.isNaN(numericId)) {
+      setError("Invalid ride id");
+      setRide(null);
+      return;
+    }
+
     setError("");
-    if (!id) return;
-    const res = await api.getRide(
-      asRideId(Number(id)),
-      userId ? asUserId(userId) : undefined,
-    );
-    if (!res.ok) setError(res.error);
-    else setRide(res.data);
-  };
+    setIsLoading(true);
+    try {
+      const res = await api.getRide(asRideId(numericId), viewerUserId);
+      if (!res.ok) {
+        setError(res.error);
+        setRide(null);
+        return;
+      }
+      setRide(res.data);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [id, viewerUserId]);
 
   useEffect(() => {
-    load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, userId]);
+    void load();
+  }, [load]);
 
-  if (!id) return <Text>Invalid ID</Text>;
+  const handleDelete = useCallback(async () => {
+    if (!ride || !viewerUserId) {
+      return;
+    }
+    const res = await api.deleteRide(ride.id, viewerUserId);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    setRide(null);
+  }, [ride, viewerUserId]);
+
+  const handleJoin = useCallback(async () => {
+    if (!ride || !viewerUserId) {
+      return;
+    }
+    const res = await api.joinRide(ride.id, viewerUserId);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    await load();
+  }, [ride, viewerUserId, load]);
+
+  const handleLeave = useCallback(async () => {
+    if (!ride || !viewerUserId) {
+      return;
+    }
+    const res = await api.leaveRide(ride.id, viewerUserId);
+    if (!res.ok) {
+      setError(res.error);
+      return;
+    }
+    await load();
+  }, [ride, viewerUserId, load]);
+
+  const capacityStats = useMemo(() => {
+    if (!ride) {
+      return {
+        seatsRemaining: 0,
+        progressValue: 0,
+        progressColor: "teal" as const,
+        capacityLabel: "",
+      };
+    }
+    const seatsRemaining = Math.max(ride.capacity - ride.membersCount, 0);
+    const utilization =
+      ride.capacity > 0
+        ? Math.min((ride.membersCount / ride.capacity) * 100, 100)
+        : 0;
+    const progressColor = seatsRemaining > 0 ? "teal" : "red";
+    const capacityLabel =
+      seatsRemaining > 0
+        ? `${seatsRemaining} seat${seatsRemaining === 1 ? "" : "s"} left`
+        : "Fully booked";
+    return {
+      seatsRemaining,
+      progressValue: utilization,
+      progressColor,
+      capacityLabel,
+    };
+  }, [ride]);
+
+  const viewerRoleLabel = useMemo(() => {
+    if (!ride || !viewerUserId) {
+      return "";
+    }
+    if (ride.driver.id === viewerUserId) {
+      return "You are the driver";
+    }
+    if (ride.joined) {
+      return "You joined this ride";
+    }
+    return "";
+  }, [ride, viewerUserId]);
+
+  if (!id) {
+    return <Text>Invalid ID</Text>;
+  }
 
   return (
-    <Stack>
-      <Title order={2}>Ride Detail</Title>
-      {error && <Alert color="red">{error}</Alert>}
-      {ride && (
-        <>
-          <Text>Destination: {labelDestination(ride.destination)}</Text>
-          <Text>From: {labelFromSpot(ride.fromSpot)}</Text>
-          <Text>Departs: {formatDateTimeJst(ride.departsAt)} JST</Text>
-          <Text>
-            Driver: {ride.driver.name} / {ride.membersCount}/{ride.capacity}
-          </Text>
-          <Group>
-            {userId && ride.driver.id === userId && (
-              <Button
-                color="red"
-                variant="light"
-                onClick={async () => {
-                  const r = await api.deleteRide(ride.id, asUserId(userId));
-                  if (!r.ok) setError(r.error);
-                  else setRide(null);
-                }}
-              >
-                Delete
-              </Button>
-            )}
-            {userId && !ride.joined && (
-              <Button
-                onClick={async () => {
-                  const r = await api.joinRide(ride.id, asUserId(userId));
-                  if (!r.ok) setError(r.error);
-                  else load();
-                }}
-              >
-                Join
-              </Button>
-            )}
-            {userId && ride.joined && (
-              <Button
-                variant="light"
-                onClick={async () => {
-                  const r = await api.leaveRide(ride.id, asUserId(userId));
-                  if (!r.ok) setError(r.error);
-                  else load();
-                }}
-              >
-                Leave
-              </Button>
-            )}
-          </Group>
-        </>
-      )}
-    </Stack>
+    <Container size="md">
+      <Stack gap="lg">
+        <Group justify="space-between" align="flex-start">
+          <Stack gap={4}>
+            <Title order={2}>Ride detail</Title>
+            <Text size="sm" c="dimmed">
+              Check the full plan before you decide to hop in.
+            </Text>
+          </Stack>
+          <Button component={Link} to="/" variant="light">
+            Back to rides
+          </Button>
+        </Group>
+        {error && <Alert color="red">{error}</Alert>}
+        <Paper withBorder radius="lg" p="xl" pos="relative">
+          {ride && <LoadingOverlay visible={isLoading} zIndex={5} />}
+          {isLoading && !ride && (
+            <Group justify="center">
+              <Stack gap="xs" align="center">
+                <Text size="sm" c="dimmed">
+                  Loading ride information...
+                </Text>
+              </Stack>
+            </Group>
+          )}
+          {!isLoading && !ride && !error && (
+            <Text c="dimmed">Ride not found.</Text>
+          )}
+          {ride && (
+            <Stack gap="xl">
+              <Stack gap={6}>
+                <Group gap="sm">
+                  <Badge size="lg" variant="light" color="indigo">
+                    {labelDestination(ride.destination)}
+                  </Badge>
+                  <Badge variant="outline" color="gray">
+                    from {labelFromSpot(ride.fromSpot)}
+                  </Badge>
+                  {viewerRoleLabel && (
+                    <Badge color="teal" variant="light">
+                      {viewerRoleLabel}
+                    </Badge>
+                  )}
+                </Group>
+                <Text size="sm" c="dimmed">
+                  Departs at {formatDateTimeJst(ride.departsAt)} JST
+                </Text>
+              </Stack>
+              <Divider />
+              <Group gap="xl" align="flex-start" grow>
+                <Stack gap={6}>
+                  <Text size="sm" c="dimmed">
+                    Driver
+                  </Text>
+                  <Text fw={600}>{ride.driver.name}</Text>
+                  <Text size="sm" c="dimmed">
+                    Organizer of this ride
+                  </Text>
+                </Stack>
+                <Stack gap={6}>
+                  <Text size="sm" c="dimmed">
+                    Seats
+                  </Text>
+                  <Text fw={600}>
+                    {ride.membersCount}/{ride.capacity}
+                  </Text>
+                  <Progress
+                    size="sm"
+                    value={capacityStats.progressValue}
+                    color={capacityStats.progressColor}
+                  />
+                  <Text size="sm" c="dimmed">
+                    {capacityStats.capacityLabel}
+                  </Text>
+                </Stack>
+                <Stack gap={6}>
+                  <Text size="sm" c="dimmed">
+                    Meeting point
+                  </Text>
+                  <Text fw={600}>{labelFromSpot(ride.fromSpot)}</Text>
+                  <Text size="sm" c="dimmed">
+                    Heading to {labelDestination(ride.destination)}
+                  </Text>
+                </Stack>
+              </Group>
+              {ride.note && (
+                <Stack gap={4}>
+                  <Text size="sm" c="dimmed">
+                    Driver's note
+                  </Text>
+                  <Text>{ride.note}</Text>
+                </Stack>
+              )}
+              <Divider />
+              <Group justify="flex-end" gap="sm">
+                {viewerUserId && ride.driver.id === viewerUserId && (
+                  <Button
+                    color="red"
+                    variant="light"
+                    onClick={() => {
+                      void handleDelete();
+                    }}
+                  >
+                    Delete ride
+                  </Button>
+                )}
+                {viewerUserId &&
+                  ride.driver.id !== viewerUserId &&
+                  !ride.joined && (
+                    <Button
+                      onClick={() => {
+                        void handleJoin();
+                      }}
+                    >
+                      Join ride
+                    </Button>
+                  )}
+                {viewerUserId &&
+                  ride.driver.id !== viewerUserId &&
+                  ride.joined && (
+                    <Button
+                      variant="light"
+                      onClick={() => {
+                        void handleLeave();
+                      }}
+                    >
+                      Leave ride
+                    </Button>
+                  )}
+              </Group>
+            </Stack>
+          )}
+        </Paper>
+      </Stack>
+    </Container>
   );
 }

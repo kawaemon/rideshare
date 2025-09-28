@@ -19,10 +19,9 @@
 ## ビルド/実行
 
 - pnpm を実行する際は `corepack pnpm` で実行せよ
-- 依存: 各ワークスペースで `pnpm install`。
 - API: `cd api && pnpm prisma migrate dev && pnpm dev`（scripts 例は下記）。
 - Front: `cd front && pnpm dev`。
-- 依存をインストールするときは `pnpm add` を使い最新版を入れること
+- 依存をインストールするときはユーザーにその旨をリクエストすること。`pnpm add` は等は動作しない。
 - 例: `api/package.json`
 
 ```json
