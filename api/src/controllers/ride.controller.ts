@@ -1,7 +1,8 @@
 import type { Context } from "hono";
 import { getUserIdFromHeader } from "../lib/auth";
 import { badRequest, ok } from "../lib/http";
-import type { CreateRideInput, Role } from "../lib/validate";
+import type { CreateRideInput } from "../domain/ride.dto";
+import type { Role } from "../lib/validate";
 import { getDbClient } from "../lib/db-client";
 import { RideService } from "../services/ride.service";
 // Input validation is handled by route-level zod validators (see routes)

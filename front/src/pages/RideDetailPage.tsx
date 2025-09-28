@@ -14,7 +14,7 @@ import {
 } from "@mantine/core";
 import { Link, useParams } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { api, type RideWithDriver } from "../api/client";
+import { api, type RideDetail } from "../api/client";
 import { asRideId, asUserId } from "../api/types";
 import { labelDestination, labelFromSpot } from "../lib/labels";
 import { formatDateTimeJst } from "../lib/datetime";
@@ -26,9 +26,7 @@ export function RideDetailPage() {
   const viewerUserId = useMemo(() => {
     return userId ? asUserId(userId) : undefined;
   }, [userId]);
-  const [ride, setRide] = useState<
-    (RideWithDriver & { membersCount: number; joined: boolean }) | null
-  >(null);
+  const [ride, setRide] = useState<RideDetail | null>(null);
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -237,6 +235,27 @@ export function RideDetailPage() {
                   </Text>
                   <Text>{ride.note}</Text>
                 </Stack>
+              )}
+              {viewerUserId && ride.driver.id === viewerUserId && (
+                <>
+                  <Divider />
+                  <Stack gap="sm">
+                    <Text size="sm" c="dimmed">
+                      Members
+                    </Text>
+                    {ride.members.length === 0 ? (
+                      <Text size="sm" c="dimmed">
+                        No members yet.
+                      </Text>
+                    ) : (
+                      <Stack gap={4}>
+                        {ride.members.map((member) => (
+                          <Text key={member.id}>{member.name}</Text>
+                        ))}
+                      </Stack>
+                    )}
+                  </Stack>
+                </>
               )}
               <Divider />
               <Group justify="flex-end" gap="sm">

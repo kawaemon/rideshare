@@ -3,6 +3,7 @@ import type {
   FromSpot,
   ListRidesParams,
   Ride,
+  RideDetail,
   RideListItem,
   RideWithDriver,
   Result,
@@ -143,7 +144,7 @@ export async function createRide(
 export async function getRide(
   id: RideId,
   currentUserId?: UserId,
-): Promise<Result<RideWithDriver & { membersCount: number; joined: boolean }>> {
+): Promise<Result<RideDetail>> {
   type Resp = {
     id: number;
     driver: { id: string };
@@ -155,15 +156,13 @@ export async function getRide(
     createdAt: string;
     membersCount: number;
     joined: boolean;
+    members?: Array<{ id: string; name: string }>;
   };
   const r = await request<Resp>(`/rides/${id}`, {
     method: "GET",
     userId: currentUserId,
   });
-  if (!r.ok)
-    return r as Result<
-      RideWithDriver & { membersCount: number; joined: boolean }
-    >;
+  if (!r.ok) return r as Result<RideDetail>;
   const base: RideWithDriver = {
     id: asRideId(r.data.id),
     driverId: asUserId(r.data.driver.id),
@@ -177,7 +176,15 @@ export async function getRide(
   };
   return {
     ok: true,
-    data: { ...base, membersCount: r.data.membersCount, joined: r.data.joined },
+    data: {
+      ...base,
+      membersCount: r.data.membersCount,
+      joined: r.data.joined,
+      members: (r.data.members ?? []).map((member) => ({
+        id: asUserId(member.id),
+        name: member.name,
+      })),
+    },
   };
 }
 

@@ -1,30 +1,21 @@
-import type { CreateRideInput } from "../lib/validate";
 import type { DbClient } from "../lib/db-client";
 import { canJoin } from "../domain/ride";
+import type {
+  CreateRideInput,
+  RideCreateData,
+  RideDetailData,
+  RideListItemData,
+} from "../domain/ride.dto";
 
 export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
 export class RideService {
   constructor(private readonly db: DbClient) {}
 
-  async list(params: { viewerId?: string | null }): Promise<
-    ServiceResult<
-      Array<{
-        id: number;
-        driver: { id: string };
-        destination: string;
-        fromSpot: string;
-        departsAt: string;
-        capacity: number;
-        note: string;
-        membersCount: number;
-        joined: boolean;
-      }>
-    >
-  > {
+  async list(params: { viewerId?: string | null }): Promise<ServiceResult<RideListItemData[]>> {
     const { viewerId } = params;
     const items = await this.db.listRidesWithRelations();
-    const res = items.map((r) => ({
+    const res: RideListItemData[] = items.map((r) => ({
       id: r.id,
       driver: { id: r.driver.id },
       destination: r.destination,
@@ -41,18 +32,7 @@ export class RideService {
   async create(
     uid: string,
     input: CreateRideInput,
-  ): Promise<
-    ServiceResult<{
-      id: number;
-      driver: { id: string };
-      destination: string;
-      fromSpot: string;
-      departsAt: string;
-      capacity: number;
-      note: string;
-      createdAt: string;
-    }>
-  > {
+  ): Promise<ServiceResult<RideCreateData>> {
     const user = await this.db.findUserById(uid);
     if (!user) {
       return { ok: false, error: "user_not_found" };
@@ -84,24 +64,19 @@ export class RideService {
   async detail(
     viewerId: string | null | undefined,
     id: number,
-  ): Promise<
-    ServiceResult<{
-      id: number;
-      driver: { id: string };
-      destination: string;
-      fromSpot: string;
-      departsAt: string;
-      capacity: number;
-      note: string;
-      createdAt: string;
-      membersCount: number;
-      joined: boolean;
-    }>
-  > {
+  ): Promise<ServiceResult<RideDetailData>> {
     const r = await this.db.findRideWithMembers(id);
     if (!r) {
       return { ok: false, error: "not_found" };
     }
+
+    const isDriver = viewerId === r.driverId;
+    const members = isDriver
+      ? r.members.map((m) => ({
+          id: m.userId,
+          name: m.user?.name && m.user.name.length > 0 ? m.user.name : m.userId,
+        }))
+      : [];
 
     return {
       ok: true,
@@ -114,8 +89,9 @@ export class RideService {
         capacity: r.capacity,
         note: r.note,
         createdAt: r.createdAt.toISOString(),
-        membersCount: r.members!.length,
-        joined: viewerId ? r.members!.some((m) => m.userId === viewerId) : false,
+        membersCount: r.members.length,
+        joined: viewerId ? r.members.some((m) => m.userId === viewerId) : false,
+        members,
       },
     };
   }

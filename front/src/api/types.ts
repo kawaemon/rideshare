@@ -38,6 +38,12 @@ export interface RideWithDriver extends Ride {
   driver: User;
 }
 
+export interface RideDetail extends RideWithDriver {
+  membersCount: number;
+  joined: boolean;
+  members: User[];
+}
+
 export interface RideListItem {
   id: RideId;
   driver: User;

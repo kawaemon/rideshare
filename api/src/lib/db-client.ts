@@ -2,8 +2,13 @@ import { getDb } from "./db";
 import type { Prisma } from "@prisma/client";
 
 // Domain types (Prisma-independent)
-export type User = { id: string };
-export type RideMember = { rideId: number; userId: string };
+export type User = { id: string; name?: string };
+export type RideMember = {
+  rideId: number;
+  userId: string;
+  joinedAt: Date;
+  user?: User;
+};
 export type Ride = {
   id: number;
   driverId: string;
@@ -106,7 +111,7 @@ class PrismaDbClient implements DbClient {
     const rides = await db.ride.findMany({
       where,
       orderBy: { departsAt: "asc" },
-      include: { driver: true, members: true },
+      include: { driver: true, members: { include: { user: true } } },
     });
     return rides as RideWithMembers[];
   }
@@ -156,7 +161,7 @@ class PrismaDbClient implements DbClient {
     const db = getDb();
     const ride = await db.ride.findUnique({
       where: { id },
-      include: { driver: true, members: true },
+      include: { driver: true, members: { include: { user: true } } },
     });
     return ride as RideWithMembers | null;
   }

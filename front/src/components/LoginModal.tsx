@@ -21,8 +21,8 @@ export function LoginModal({ opened, onClose }: Props) {
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
 
-  const onSubmit = async (e?: FormEvent) => {
-    if (e) e.preventDefault();
+  const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     // Validate only that it's non-empty; actual password validation is not required
     const trimmed = id.trim();
     if (!trimmed) return;
