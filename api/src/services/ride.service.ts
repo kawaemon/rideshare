@@ -75,8 +75,11 @@ export class RideService {
       ? r.members.map((m) => ({
           id: m.userId,
           name: m.user?.name && m.user.name.length > 0 ? m.user.name : m.userId,
+          verified: Boolean(m.verifiedAt),
         }))
       : [];
+    const viewerMember = viewerId ? r.members.find((m) => m.userId === viewerId) : undefined;
+    const viewerVerified = Boolean(viewerMember?.verifiedAt);
 
     return {
       ok: true,
@@ -91,6 +94,7 @@ export class RideService {
         createdAt: r.createdAt.toISOString(),
         membersCount: r.members.length,
         joined: viewerId ? r.members.some((m) => m.userId === viewerId) : false,
+        verified: viewerVerified,
         members,
       },
     };
@@ -178,5 +182,27 @@ export class RideService {
       joined: r.members.some((m) => m.userId === uid),
     }));
     return { ok: true, data: res };
+  }
+
+  async verifyMember(uid: string, rideId: number, memberId: string): Promise<ServiceResult<true>> {
+    const ride = await this.db.findRideWithMembers(rideId);
+    if (!ride) {
+      return { ok: false, error: "not_found" };
+    }
+    const targetMember = ride.members.find((m) => m.userId === memberId);
+    if (!targetMember) {
+      return { ok: false, error: "member_not_found" };
+    }
+
+    if (ride.driverId !== uid) {
+      return { ok: false, error: "forbidden" };
+    }
+
+    if (targetMember.verifiedAt) {
+      return { ok: true, data: true };
+    }
+
+    await this.db.verifyRideMember(rideId, memberId, new Date());
+    return { ok: true, data: true };
   }
 }

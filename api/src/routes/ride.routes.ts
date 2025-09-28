@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
 import { RideController } from "../controllers/ride.controller";
-import { CreateRideSchema, RideIdParamSchema, RoleSchema } from "../lib/validate";
+import { CreateRideSchema, RideIdParamSchema, RoleSchema, UserIdSchema } from "../lib/validate";
 import { z } from "zod";
 
 const ctrl = new RideController();
@@ -23,6 +23,15 @@ rideRoutes.post("/:id/join", zValidator("param", z.object({ id: RideIdParamSchem
   const { id } = c.req.valid("param");
   return ctrl.join(c, id);
 });
+
+rideRoutes.post(
+  "/:id/members/:memberId/verify",
+  zValidator("param", z.object({ id: RideIdParamSchema, memberId: UserIdSchema })),
+  (c) => {
+    const { id, memberId } = c.req.valid("param");
+    return ctrl.verifyMember(c, id, memberId);
+  },
+);
 
 rideRoutes.post("/:id/leave", zValidator("param", z.object({ id: RideIdParamSchema })), (c) => {
   const { id } = c.req.valid("param");

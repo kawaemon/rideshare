@@ -35,6 +35,7 @@ model RideMember {
   rideId   Int
   userId   String
   joinedAt DateTime @default(now())
+  verifiedAt DateTime?
   ride     Ride     @relation(fields: [rideId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 

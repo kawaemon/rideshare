@@ -88,4 +88,16 @@ export class RideController {
     }
     return c.json(result.data);
   }
+
+  async verifyMember(c: Context, rideId: number, memberId: string) {
+    const uid = getUserIdFromHeader(c);
+    if (!uid) {
+      return badRequest(c, "unauthorized");
+    }
+    const result = await this.service.verifyMember(uid, rideId, memberId);
+    if (!result.ok) {
+      return badRequest(c, result.error);
+    }
+    return ok(c);
+  }
 }

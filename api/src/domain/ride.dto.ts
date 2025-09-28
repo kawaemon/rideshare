@@ -23,5 +23,6 @@ export interface RideCreateData extends BaseRideData {
 
 export interface RideDetailData extends RideListItemData {
   createdAt: string;
-  members: Array<{ id: string; name: string }>;
+  verified: boolean;
+  members: Array<{ id: string; name: string; verified: boolean }>;
 }

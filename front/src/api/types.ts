@@ -38,10 +38,15 @@ export interface RideWithDriver extends Ride {
   driver: User;
 }
 
+export interface RideMemberDetail extends User {
+  verified: boolean;
+}
+
 export interface RideDetail extends RideWithDriver {
   membersCount: number;
   joined: boolean;
-  members: User[];
+  verified: boolean;
+  members: RideMemberDetail[];
 }
 
 export interface RideListItem {

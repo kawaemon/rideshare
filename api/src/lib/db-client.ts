@@ -7,6 +7,7 @@ export type RideMember = {
   rideId: number;
   userId: string;
   joinedAt: Date;
+  verifiedAt: Date | null;
   user?: User;
 };
 export type Ride = {
@@ -56,6 +57,7 @@ export interface DbClient {
   // Ride members
   addRideMember(rideId: number, userId: string): Promise<RideMember>;
   findRideMember(rideId: number, userId: string): Promise<RideMember | null>;
+  verifyRideMember(rideId: number, userId: string, verifiedAt: Date): Promise<RideMember>;
   deleteRideMember(rideId: number, userId: string): Promise<void>;
 }
 
@@ -149,6 +151,15 @@ class PrismaDbClient implements DbClient {
   async findRideMember(rideId: number, userId: string): Promise<RideMember | null> {
     const db = getDb();
     const rec = await db.rideMember.findUnique({ where: { rideId_userId: { rideId, userId } } });
+    return rec;
+  }
+
+  async verifyRideMember(rideId: number, userId: string, verifiedAt: Date): Promise<RideMember> {
+    const db = getDb();
+    const rec = await db.rideMember.update({
+      where: { rideId_userId: { rideId, userId } },
+      data: { verifiedAt },
+    });
     return rec;
   }
 

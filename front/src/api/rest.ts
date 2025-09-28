@@ -156,7 +156,8 @@ export async function getRide(
     createdAt: string;
     membersCount: number;
     joined: boolean;
-    members?: Array<{ id: string; name: string }>;
+    verified: boolean;
+    members?: Array<{ id: string; name: string; verified: boolean }>;
   };
   const r = await request<Resp>(`/rides/${id}`, {
     method: "GET",
@@ -180,9 +181,11 @@ export async function getRide(
       ...base,
       membersCount: r.data.membersCount,
       joined: r.data.joined,
+      verified: Boolean(r.data.verified),
       members: (r.data.members ?? []).map((member) => ({
         id: asUserId(member.id),
         name: member.name,
+        verified: Boolean(member.verified),
       })),
     },
   };
@@ -260,6 +263,19 @@ export async function listMyRides(
 
 export async function ensureUser(userId: UserId): Promise<Result<void>> {
   const r = await request<{ id: string }>(`/me`, { method: "PUT", userId });
+  if (!r.ok) return r;
+  return { ok: true, data: undefined };
+}
+
+export async function verifyRideMember(
+  rideId: RideId,
+  memberId: UserId,
+  userId: UserId,
+): Promise<Result<void>> {
+  const r = await request<unknown>(`/rides/${rideId}/members/${memberId}/verify`, {
+    method: "POST",
+    userId,
+  });
   if (!r.ok) return r;
   return { ok: true, data: undefined };
 }
