@@ -30,6 +30,7 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
       </Text>
       <Stack gap={8}>
         {members.map((member) => {
+          const locationStatus = describeLocationStatus(member.locationCheck);
           const isPendingVerification = Boolean(
             isVerifying && verifyTarget && verifyTarget.memberId === member.id && verifyTarget.isSelf === false,
           );
@@ -38,8 +39,13 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
           );
 
           return (
-            <Group key={member.id} justify="space-between">
-              <Text>{member.name}</Text>
+            <Group key={member.id} justify="space-between" align="center">
+              <Group gap="xs">
+                <Text>{member.name}</Text>
+                <Badge color={locationStatus.color} variant="light" size="sm">
+                  {locationStatus.label}
+                </Badge>
+              </Group>
               {member.verified ? (
                 <Badge color="teal" variant="light">
                   集合済み
@@ -63,4 +69,23 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
       </Stack>
     </Stack>
   );
+}
+
+function describeLocationStatus(locationCheck: RideMemberDetail["locationCheck"]): {
+  label: string;
+  color: string;
+} {
+  if (!locationCheck) {
+    return { label: "未送信", color: "gray" };
+  }
+
+  if (locationCheck.matched === true) {
+    return { label: "集合場所付近", color: "teal" };
+  }
+
+  if (locationCheck.matched === false) {
+    return { label: "集合場所から離れています", color: "red" };
+  }
+
+  return { label: "判定できません", color: "gray" };
 }
