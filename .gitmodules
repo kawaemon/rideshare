@@ -1,0 +1,3 @@
+[submodule "digital-twin-bus-server"]
+	path = digital-twin-bus-server
+	url = git@github.com:kota-yata/digital-twin-bus-server.git
