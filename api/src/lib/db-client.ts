@@ -8,6 +8,9 @@ export type RideMember = {
   userId: string;
   joinedAt: Date;
   verifiedAt: Date | null;
+  locationCheckIp: string | null;
+  locationCheckResult: boolean | null;
+  locationCheckedAt: Date | null;
   user?: User;
 };
 export type Ride = {
@@ -58,7 +61,57 @@ export interface DbClient {
   addRideMember(rideId: number, userId: string): Promise<RideMember>;
   findRideMember(rideId: number, userId: string): Promise<RideMember | null>;
   verifyRideMember(rideId: number, userId: string, verifiedAt: Date): Promise<RideMember>;
+  recordRideMemberLocationCheck(
+    rideId: number,
+    userId: string,
+    data: { ip: string; result: boolean | null; checkedAt: Date },
+  ): Promise<RideMember>;
   deleteRideMember(rideId: number, userId: string): Promise<void>;
+}
+
+type RideWithDriverRow = Prisma.RideGetPayload<{ include: { driver: true } }>;
+type RideWithMembersRow = Prisma.RideGetPayload<{
+  include: { driver: true; members: { include: { user: true } } };
+}>;
+type RideMemberRow = Prisma.RideMemberGetPayload<{ include: { user: true } }>;
+
+function toDomainUser(user: { id: string; name: string }): User {
+  return user.name ? { id: user.id, name: user.name } : { id: user.id };
+}
+
+function toDomainRideMember(member: RideMemberRow): RideMember {
+  return {
+    rideId: member.rideId,
+    userId: member.userId,
+    joinedAt: member.joinedAt,
+    verifiedAt: member.verifiedAt,
+    locationCheckIp: member.locationCheckIp,
+    locationCheckResult: member.locationCheckResult,
+    locationCheckedAt: member.locationCheckedAt,
+    user: member.user ? toDomainUser(member.user) : undefined,
+  };
+}
+
+function toDomainRide(ride: RideWithDriverRow): Ride {
+  const base: Ride = {
+    id: ride.id,
+    driverId: ride.driverId,
+    driver: toDomainUser(ride.driver),
+    destination: ride.destination,
+    fromSpot: ride.fromSpot,
+    departsAt: ride.departsAt,
+    capacity: ride.capacity,
+    note: ride.note,
+    createdAt: ride.createdAt,
+  };
+  return base;
+}
+
+function toDomainRideWithMembers(ride: RideWithMembersRow): RideWithMembers {
+  return {
+    ...toDomainRide(ride),
+    members: ride.members.map((member) => toDomainRideMember(member)),
+  };
 }
 
 class PrismaDbClient implements DbClient {
@@ -92,7 +145,7 @@ class PrismaDbClient implements DbClient {
       orderBy: { departsAt: "asc" },
       include: { driver: true },
     });
-    return rides;
+    return rides.map((ride) => toDomainRide(ride));
   }
 
   async listRidesWithRelations(filter?: RideFilter): Promise<RideWithMembers[]> {
@@ -115,7 +168,7 @@ class PrismaDbClient implements DbClient {
       orderBy: { departsAt: "asc" },
       include: { driver: true, members: { include: { user: true } } },
     });
-    return rides as RideWithMembers[];
+    return rides.map((ride) => toDomainRideWithMembers(ride));
   }
 
   async createRide(data: {
@@ -128,13 +181,13 @@ class PrismaDbClient implements DbClient {
   }): Promise<Ride> {
     const db = getDb();
     const ride = await db.ride.create({ data, include: { driver: true } });
-    return ride as Ride;
+    return toDomainRide(ride);
   }
 
   async findRideById(id: number): Promise<Ride | null> {
     const db = getDb();
     const ride = await db.ride.findUnique({ where: { id }, include: { driver: true } });
-    return ride as Ride | null;
+    return ride ? toDomainRide(ride) : null;
   }
 
   async deleteRide(id: number): Promise<void> {
@@ -144,14 +197,17 @@ class PrismaDbClient implements DbClient {
 
   async addRideMember(rideId: number, userId: string): Promise<RideMember> {
     const db = getDb();
-    const rec = await db.rideMember.create({ data: { rideId, userId } });
-    return rec;
+    const rec = await db.rideMember.create({ data: { rideId, userId }, include: { user: true } });
+    return toDomainRideMember(rec);
   }
 
   async findRideMember(rideId: number, userId: string): Promise<RideMember | null> {
     const db = getDb();
-    const rec = await db.rideMember.findUnique({ where: { rideId_userId: { rideId, userId } } });
-    return rec;
+    const rec = await db.rideMember.findUnique({
+      where: { rideId_userId: { rideId, userId } },
+      include: { user: true },
+    });
+    return rec ? toDomainRideMember(rec) : null;
   }
 
   async verifyRideMember(rideId: number, userId: string, verifiedAt: Date): Promise<RideMember> {
@@ -159,8 +215,27 @@ class PrismaDbClient implements DbClient {
     const rec = await db.rideMember.update({
       where: { rideId_userId: { rideId, userId } },
       data: { verifiedAt },
+      include: { user: true },
     });
-    return rec;
+    return toDomainRideMember(rec);
+  }
+
+  async recordRideMemberLocationCheck(
+    rideId: number,
+    userId: string,
+    data: { ip: string; result: boolean | null; checkedAt: Date },
+  ): Promise<RideMember> {
+    const db = getDb();
+    const rec = await db.rideMember.update({
+      where: { rideId_userId: { rideId, userId } },
+      data: {
+        locationCheckIp: data.ip,
+        locationCheckResult: data.result,
+        locationCheckedAt: data.checkedAt,
+      },
+      include: { user: true },
+    });
+    return toDomainRideMember(rec);
   }
 
   async deleteRideMember(rideId: number, userId: string): Promise<void> {
@@ -174,7 +249,7 @@ class PrismaDbClient implements DbClient {
       where: { id },
       include: { driver: true, members: { include: { user: true } } },
     });
-    return ride as RideWithMembers | null;
+    return ride ? toDomainRideWithMembers(ride) : null;
   }
 }
 

@@ -10,6 +10,7 @@ export interface RideDetailState {
   isLoading: boolean;
   verifyTarget: RideVerifyTarget | null;
   isVerifying: boolean;
+  isSendingLocation: boolean;
   capacityStats: RideCapacityStats;
   viewerRoleLabel: string;
   isDriver: boolean;
@@ -23,6 +24,7 @@ export interface RideDetailHandlers {
   handleJoin: () => Promise<void>;
   handleLeave: () => Promise<void>;
   handleConfirmVerification: () => Promise<void>;
+  handleSendLocation: () => Promise<void>;
   openVerifyModal: (member: RideMemberDetail) => void;
   openSelfVerifyModal: () => void;
   closeVerifyModal: () => void;
@@ -39,6 +41,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [verifyTarget, setVerifyTarget] = useState<RideVerifyTarget | null>(null);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
+  const [isSendingLocation, setIsSendingLocation] = useState<boolean>(false);
 
   const load = useCallback(async () => {
     if (!id) {
@@ -113,6 +116,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       memberId: member.id,
       memberName: member.name,
       isSelf: false,
+      locationCheck: member.locationCheck,
     });
   }, []);
 
@@ -124,15 +128,16 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       memberId: viewerUserId,
       memberName: "your arrival",
       isSelf: true,
+      locationCheck: ride?.selfLocationCheck ?? null,
     });
-  }, [viewerUserId]);
+  }, [viewerUserId, ride?.selfLocationCheck]);
 
   const closeVerifyModal = useCallback(() => {
-    if (isVerifying) {
+    if (isVerifying || isSendingLocation) {
       return;
     }
     setVerifyTarget(null);
-  }, [isVerifying]);
+  }, [isVerifying, isSendingLocation]);
 
   const handleConfirmVerification = useCallback(async () => {
     if (!ride || !viewerUserId || !verifyTarget || verifyTarget.isSelf) {
@@ -150,6 +155,41 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
     setIsVerifying(false);
     setVerifyTarget(null);
   }, [ride, viewerUserId, verifyTarget, load]);
+
+  const handleSendLocation = useCallback(async () => {
+    if (!ride || !viewerUserId || !verifyTarget || !verifyTarget.isSelf) {
+      return;
+    }
+    setIsSendingLocation(true);
+    setError("");
+    try {
+      const res = await api.submitRideLocationCheck(ride.id, viewerUserId);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setRide((prev) => {
+        if (!prev) {
+          return prev;
+        }
+        return {
+          ...prev,
+          selfLocationCheck: res.data,
+        };
+      });
+      setVerifyTarget((prev) => {
+        if (!prev || !prev.isSelf) {
+          return prev;
+        }
+        return {
+          ...prev,
+          locationCheck: res.data,
+        };
+      });
+    } finally {
+      setIsSendingLocation(false);
+    }
+  }, [ride, viewerUserId, verifyTarget]);
 
   const capacityStats = useMemo<RideCapacityStats>(() => {
     if (!ride) {
@@ -203,6 +243,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       isLoading,
       verifyTarget,
       isVerifying,
+      isSendingLocation,
       capacityStats,
       viewerRoleLabel,
       isDriver,
@@ -215,6 +256,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       handleJoin,
       handleLeave,
       handleConfirmVerification,
+      handleSendLocation,
       openVerifyModal,
       openSelfVerifyModal,
       closeVerifyModal,

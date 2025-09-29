@@ -36,6 +36,9 @@ model RideMember {
   userId   String
   joinedAt DateTime @default(now())
   verifiedAt DateTime?
+  locationCheckIp       String?
+  locationCheckResult   Boolean?
+  locationCheckedAt     DateTime?
   ride     Ride     @relation(fields: [rideId], references: [id])
   user     User     @relation(fields: [userId], references: [id])
 

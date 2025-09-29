@@ -22,6 +22,7 @@ export function RideDetailPage() {
     isLoading,
     verifyTarget,
     isVerifying,
+    isSendingLocation,
     capacityStats,
     viewerRoleLabel,
     isDriver,
@@ -34,6 +35,7 @@ export function RideDetailPage() {
     handleJoin,
     handleLeave,
     handleConfirmVerification,
+    handleSendLocation,
     openVerifyModal,
     openSelfVerifyModal,
     closeVerifyModal,
@@ -48,9 +50,13 @@ export function RideDetailPage() {
       <RideVerifyModal
         target={verifyTarget}
         isVerifying={isVerifying}
+        isSendingLocation={isSendingLocation}
         onClose={closeVerifyModal}
         onConfirm={() => {
           void handleConfirmVerification();
+        }}
+        onSendLocation={() => {
+          void handleSendLocation();
         }}
       />
       <Stack gap="lg">
@@ -105,8 +111,7 @@ export function RideDetailPage() {
                 showJoin={canJoin}
                 showSelfVerify={canSelfVerify}
                 showLeave={canLeave}
-                isVerifying={isVerifying}
-                verifyTarget={verifyTarget}
+                isSendingLocation={isSendingLocation}
                 onDelete={handleDelete}
                 onJoin={handleJoin}
                 onSelfVerify={openSelfVerifyModal}

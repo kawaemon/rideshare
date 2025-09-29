@@ -5,7 +5,9 @@ import type {
   RideCreateData,
   RideDetailData,
   RideListItemData,
+  RideMemberLocationCheckData,
 } from "../domain/ride.dto";
+import { locationVerification, toLocation } from "../lib/school-api";
 
 export type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -29,10 +31,7 @@ export class RideService {
     return { ok: true, data: res };
   }
 
-  async create(
-    uid: string,
-    input: CreateRideInput,
-  ): Promise<ServiceResult<RideCreateData>> {
+  async create(uid: string, input: CreateRideInput): Promise<ServiceResult<RideCreateData>> {
     const user = await this.db.findUserById(uid);
     if (!user) {
       return { ok: false, error: "user_not_found" };
@@ -76,10 +75,12 @@ export class RideService {
           id: m.userId,
           name: m.user?.name && m.user.name.length > 0 ? m.user.name : m.userId,
           verified: Boolean(m.verifiedAt),
+          locationCheck: toLocationCheckData(m),
         }))
       : [];
     const viewerMember = viewerId ? r.members.find((m) => m.userId === viewerId) : undefined;
     const viewerVerified = Boolean(viewerMember?.verifiedAt);
+    const viewerLocationCheck = viewerMember ? toLocationCheckData(viewerMember) : null;
 
     return {
       ok: true,
@@ -96,6 +97,7 @@ export class RideService {
         joined: viewerId ? r.members.some((m) => m.userId === viewerId) : false,
         verified: viewerVerified,
         members,
+        selfLocationCheck: viewerLocationCheck,
       },
     };
   }
@@ -184,6 +186,47 @@ export class RideService {
     return { ok: true, data: res };
   }
 
+  async submitLocationCheck(
+    uid: string,
+    rideId: number,
+    ip: string,
+  ): Promise<ServiceResult<RideMemberLocationCheckData>> {
+    const ride = await this.db.findRideWithMembers(rideId);
+    if (!ride) {
+      return { ok: false, error: "not_found" };
+    }
+
+    const member = ride.members.find((m) => m.userId === uid);
+    if (!member) {
+      return { ok: false, error: "not_joined" };
+    }
+
+    const location = toLocation(ride.fromSpot);
+    if (!location) {
+      return { ok: false, error: "unsupported_location" };
+    }
+
+    const checkedAt = new Date();
+    const verification = await locationVerification(ip, location);
+    await this.db.recordRideMemberLocationCheck(rideId, uid, {
+      ip,
+      result: verification.matched,
+      checkedAt,
+    });
+
+    const locationCheck = toLocationCheckData({
+      locationCheckIp: ip,
+      locationCheckResult: verification.matched,
+      locationCheckedAt: checkedAt,
+    });
+
+    if (!locationCheck) {
+      return { ok: false, error: "location_check_failed" };
+    }
+
+    return { ok: true, data: locationCheck };
+  }
+
   async verifyMember(uid: string, rideId: number, memberId: string): Promise<ServiceResult<true>> {
     const ride = await this.db.findRideWithMembers(rideId);
     if (!ride) {
@@ -205,4 +248,19 @@ export class RideService {
     await this.db.verifyRideMember(rideId, memberId, new Date());
     return { ok: true, data: true };
   }
+}
+function toLocationCheckData(member: {
+  locationCheckIp: string | null;
+  locationCheckResult: boolean | null;
+  locationCheckedAt: Date | null;
+}): RideMemberLocationCheckData | null {
+  if (!member.locationCheckIp || !member.locationCheckedAt) {
+    return null;
+  }
+
+  return {
+    ip: member.locationCheckIp,
+    matched: member.locationCheckResult,
+    checkedAt: member.locationCheckedAt.toISOString(),
+  };
 }

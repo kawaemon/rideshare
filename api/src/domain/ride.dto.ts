@@ -21,8 +21,20 @@ export interface RideCreateData extends BaseRideData {
   createdAt: string;
 }
 
+export interface RideMemberLocationCheckData {
+  ip: string;
+  matched: boolean | null;
+  checkedAt: string;
+}
+
 export interface RideDetailData extends RideListItemData {
   createdAt: string;
   verified: boolean;
-  members: Array<{ id: string; name: string; verified: boolean }>;
+  members: Array<{
+    id: string;
+    name: string;
+    verified: boolean;
+    locationCheck: RideMemberLocationCheckData | null;
+  }>;
+  selfLocationCheck: RideMemberLocationCheckData | null;
 }

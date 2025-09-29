@@ -6,10 +6,12 @@ import type {
   RideDetail,
   RideListItem,
   RideWithDriver,
+  RideMemberLocationCheck,
   Result,
   User,
   UserId,
   RideId,
+  Location,
 } from "./types";
 import { asRideId, asUserId } from "./types";
 
@@ -17,7 +19,7 @@ const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8787";
 
 async function request<T>(
   path: string,
-  options: RequestInit & { userId?: string } = {},
+  options: RequestInit & { userId?: string } = {}
 ): Promise<Result<T>> {
   try {
     const headers: Record<string, string> = {
@@ -50,7 +52,7 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 }
 
 function withDriver<T extends { driver: { id: string } }>(
-  obj: T,
+  obj: T
 ): T & { driver: User } {
   return {
     ...obj,
@@ -60,7 +62,7 @@ function withDriver<T extends { driver: { id: string } }>(
 
 export async function listRides(
   params: ListRidesParams = {},
-  currentUserId?: UserId,
+  currentUserId?: UserId
 ): Promise<Result<RideListItem[]>> {
   type Resp = Array<{
     id: number;
@@ -109,7 +111,7 @@ export async function listRides(
 
 export async function createRide(
   input: Omit<Ride, "id" | "driverId" | "createdAt">,
-  driverId: UserId,
+  driverId: UserId
 ): Promise<Result<RideWithDriver>> {
   type Resp = {
     id: number;
@@ -143,8 +145,14 @@ export async function createRide(
 
 export async function getRide(
   id: RideId,
-  currentUserId?: UserId,
+  currentUserId?: UserId
 ): Promise<Result<RideDetail>> {
+  type LocationCheckResp = {
+    ip: string;
+    outcome: boolean | null;
+    matched: boolean | null;
+    checkedAt: string;
+  };
   type Resp = {
     id: number;
     driver: { id: string };
@@ -157,13 +165,33 @@ export async function getRide(
     membersCount: number;
     joined: boolean;
     verified: boolean;
-    members?: Array<{ id: string; name: string; verified: boolean }>;
+    members?: Array<{
+      id: string;
+      name: string;
+      verified: boolean;
+      locationCheck: LocationCheckResp | null;
+    }>;
+    selfLocationCheck?: LocationCheckResp | null;
   };
   const r = await request<Resp>(`/rides/${id}`, {
     method: "GET",
     userId: currentUserId,
   });
   if (!r.ok) return r as Result<RideDetail>;
+
+  const toLocationCheck = (
+    payload: LocationCheckResp | null | undefined
+  ): RideMemberLocationCheck | null => {
+    if (!payload) {
+      return null;
+    }
+    return {
+      ip: payload.ip,
+      matched: payload.matched,
+      checkedAt: payload.checkedAt,
+    };
+  };
+
   const base: RideWithDriver = {
     id: asRideId(r.data.id),
     driverId: asUserId(r.data.driver.id),
@@ -186,14 +214,16 @@ export async function getRide(
         id: asUserId(member.id),
         name: member.name,
         verified: Boolean(member.verified),
+        locationCheck: toLocationCheck(member.locationCheck ?? null),
       })),
+      selfLocationCheck: toLocationCheck(r.data.selfLocationCheck ?? null),
     },
   };
 }
 
 export async function joinRide(
   id: RideId,
-  userId: UserId,
+  userId: UserId
 ): Promise<Result<void>> {
   const r = await request<unknown>(`/rides/${id}/join`, {
     method: "POST",
@@ -205,7 +235,7 @@ export async function joinRide(
 
 export async function leaveRide(
   id: RideId,
-  userId: UserId,
+  userId: UserId
 ): Promise<Result<void>> {
   const r = await request<unknown>(`/rides/${id}/leave`, {
     method: "POST",
@@ -217,7 +247,7 @@ export async function leaveRide(
 
 export async function deleteRide(
   id: RideId,
-  userId: UserId,
+  userId: UserId
 ): Promise<Result<void>> {
   const r = await request<unknown>(`/rides/${id}`, {
     method: "DELETE",
@@ -229,7 +259,7 @@ export async function deleteRide(
 
 export async function listMyRides(
   role: "driver" | "member" | "all",
-  userId: UserId,
+  userId: UserId
 ): Promise<Result<RideListItem[]>> {
   type Resp = Array<{
     id: number;
@@ -267,15 +297,43 @@ export async function ensureUser(userId: UserId): Promise<Result<void>> {
   return { ok: true, data: undefined };
 }
 
-export async function verifyRideMember(
+export async function submitRideLocationCheck(
   rideId: RideId,
-  memberId: UserId,
-  userId: UserId,
-): Promise<Result<void>> {
-  const r = await request<unknown>(`/rides/${rideId}/members/${memberId}/verify`, {
+  userId: UserId
+): Promise<Result<RideMemberLocationCheck>> {
+  type Resp = {
+    ip: string;
+    outcome: boolean | null;
+    matched: boolean | null;
+    checkedAt: string;
+  };
+  const r = await request<Resp>(`/rides/${rideId}/location-check`, {
     method: "POST",
     userId,
   });
+  if (!r.ok) return r as Result<RideMemberLocationCheck>;
+  return {
+    ok: true,
+    data: {
+      ip: r.data.ip,
+      matched: r.data.matched,
+      checkedAt: r.data.checkedAt,
+    },
+  };
+}
+
+export async function verifyRideMember(
+  rideId: RideId,
+  memberId: UserId,
+  userId: UserId
+): Promise<Result<void>> {
+  const r = await request<unknown>(
+    `/rides/${rideId}/members/${memberId}/verify`,
+    {
+      method: "POST",
+      userId,
+    }
+  );
   if (!r.ok) return r;
   return { ok: true, data: undefined };
 }

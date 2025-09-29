@@ -38,8 +38,15 @@ export interface RideWithDriver extends Ride {
   driver: User;
 }
 
+export interface RideMemberLocationCheck {
+  ip: string;
+  matched: boolean | null;
+  checkedAt: string;
+}
+
 export interface RideMemberDetail extends User {
   verified: boolean;
+  locationCheck: RideMemberLocationCheck | null;
 }
 
 export interface RideDetail extends RideWithDriver {
@@ -47,6 +54,7 @@ export interface RideDetail extends RideWithDriver {
   joined: boolean;
   verified: boolean;
   members: RideMemberDetail[];
+  selfLocationCheck: RideMemberLocationCheck | null;
 }
 
 export interface RideListItem {

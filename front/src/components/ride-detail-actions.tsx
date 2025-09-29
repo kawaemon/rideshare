@@ -1,6 +1,5 @@
 import { Button, Group } from "@mantine/core";
 import { type RideDetail } from "../api/types";
-import { type RideVerifyTarget } from "./ride-detail-verify-modal";
 
 export interface RideDetailActionsProps {
   ride: RideDetail;
@@ -8,8 +7,7 @@ export interface RideDetailActionsProps {
   showJoin: boolean;
   showSelfVerify: boolean;
   showLeave: boolean;
-  isVerifying: boolean;
-  verifyTarget: RideVerifyTarget | null;
+  isSendingLocation: boolean;
   onDelete: () => Promise<void>;
   onJoin: () => Promise<void>;
   onSelfVerify: () => void;
@@ -22,8 +20,7 @@ export function RideDetailActions({
   showJoin,
   showSelfVerify,
   showLeave,
-  isVerifying,
-  verifyTarget,
+  isSendingLocation,
   onDelete,
   onJoin,
   onSelfVerify,
@@ -55,7 +52,7 @@ export function RideDetailActions({
         <Button
           variant="outline"
           disabled={ride.verified}
-          loading={isVerifying && verifyTarget?.isSelf === true}
+          loading={isSendingLocation}
           onClick={() => {
             onSelfVerify();
           }}

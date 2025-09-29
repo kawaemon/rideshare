@@ -11,5 +11,6 @@ export const api = {
   deleteRide: rest.deleteRide,
   listMyRides: rest.listMyRides,
   ensureUser: rest.ensureUser,
+  submitRideLocationCheck: rest.submitRideLocationCheck,
   verifyRideMember: rest.verifyRideMember,
 };

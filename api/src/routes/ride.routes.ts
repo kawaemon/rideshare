@@ -24,6 +24,11 @@ rideRoutes.post("/:id/join", zValidator("param", z.object({ id: RideIdParamSchem
   return ctrl.join(c, id);
 });
 
+rideRoutes.post("/:id/location-check", zValidator("param", z.object({ id: RideIdParamSchema })), (c) => {
+  const { id } = c.req.valid("param");
+  return ctrl.submitLocationCheck(c, id);
+});
+
 rideRoutes.post(
   "/:id/members/:memberId/verify",
   zValidator("param", z.object({ id: RideIdParamSchema, memberId: UserIdSchema })),
