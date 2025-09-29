@@ -26,6 +26,14 @@ export function RideDetailActions({
   onSelfVerify,
   onLeave,
 }: RideDetailActionsProps) {
+  const selfVerifyLabel = ride.mode === "taxi"
+    ? ride.verified
+      ? "合流済み"
+      : "到着報告"
+    : ride.verified
+      ? "集合済み"
+      : "集合確認";
+
   return (
     <Group justify="flex-end" gap="sm">
       {showDelete && (
@@ -57,7 +65,7 @@ export function RideDetailActions({
             onSelfVerify();
           }}
         >
-          {ride.verified ? "集合済み" : "集合確認"}
+          {selfVerifyLabel}
         </Button>
       )}
       {showLeave && (

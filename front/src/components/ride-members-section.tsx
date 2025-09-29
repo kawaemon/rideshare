@@ -1,15 +1,25 @@
 import { Badge, Button, Stack, Text, Group } from "@mantine/core";
-import { type RideMemberDetail } from "../api/types";
+import { type RideMemberDetail, type RideMode } from "../api/types";
 import { type RideVerifyTarget } from "./ride-detail-verify-modal";
 
 export interface RideMembersSectionProps {
   members: ReadonlyArray<RideMemberDetail>;
+  mode: RideMode;
   isVerifying: boolean;
   verifyTarget: RideVerifyTarget | null;
   onOpenVerify: (member: RideMemberDetail) => void;
 }
 
-export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenVerify }: RideMembersSectionProps) {
+function getVerificationLabels(mode: RideMode): { verified: string; action: string } {
+  if (mode === "taxi") {
+    return { verified: "合流済み", action: "到着確認" };
+  }
+  return { verified: "集合済み", action: "集合確認" };
+}
+
+export function RideMembersSection({ members, mode, isVerifying, verifyTarget, onOpenVerify }: RideMembersSectionProps) {
+  const labels = getVerificationLabels(mode);
+
   if (members.length === 0) {
     return (
       <Stack gap="sm">
@@ -48,7 +58,7 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
               </Group>
               {member.verified ? (
                 <Badge color="teal" variant="light">
-                  集合済み
+                  {labels.verified}
                 </Badge>
               ) : (
                 <Button
@@ -60,7 +70,7 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
                   loading={isPendingVerification}
                   disabled={isLockedDuringVerification}
                 >
-                  集合確認
+                  {labels.action}
                 </Button>
               )}
             </Group>

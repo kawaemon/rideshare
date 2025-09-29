@@ -51,6 +51,7 @@ export function RideDetailPage() {
     <Container size="md">
       <RideVerifyModal
         target={verifyTarget}
+        mode={ride?.mode ?? "car"}
         isVerifying={isVerifying}
         isSendingLocation={isSendingLocation}
         isReloadingStatus={isReloadingStatus}
@@ -98,12 +99,15 @@ export function RideDetailPage() {
                 ride={ride}
                 viewerRoleLabel={viewerRoleLabel}
                 capacityStats={capacityStats}
+                viewerIsHost={isDriver}
+                viewerJoined={ride.joined}
               />
               {isDriver && (
                 <>
                   <Divider />
                   <RideMembersSection
                     members={ride.members}
+                    mode={ride.mode}
                     isVerifying={isVerifying}
                     verifyTarget={verifyTarget}
                     onOpenVerify={openVerifyModal}

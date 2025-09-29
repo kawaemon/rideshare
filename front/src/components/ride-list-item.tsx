@@ -23,6 +23,10 @@ const rideModeLabel: Record<RideMode, string> = {
   taxi: "タクシー割り勘",
 };
 
+function describeHostLabel(mode: RideMode): string {
+  return mode === "taxi" ? "主催者" : "ドライバー";
+}
+
 function getRoleForViewer(ride: RideListItem, viewerId?: UserId): RideRole {
   if (!viewerId) {
     return null;
@@ -42,6 +46,7 @@ export function RideListItemCard({
   actions,
 }: RideListItemCardProps) {
   const role = getRoleForViewer(ride, currentUserId);
+  const hostLabel = describeHostLabel(ride.mode);
 
   return (
     <Paper withBorder radius="md" p="md">
@@ -70,7 +75,7 @@ export function RideListItemCard({
               )}
             </Group>
             <Text size="sm" c="dimmed">
-              出発: {formatDateTimeJst(ride.departsAt)} JST / ドライバー {ride.driver.name} /
+              出発: {formatDateTimeJst(ride.departsAt)} JST / {hostLabel} {ride.driver.name} /
               {" "}
               {ride.membersCount}/{ride.capacity}人
               {ride.mode === "taxi" && ride.minParticipants ? ` / 最低催行 ${ride.minParticipants}人` : ""}

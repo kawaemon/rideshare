@@ -1,5 +1,5 @@
 import { Modal, Stack, Text, Group, Button, Badge } from "@mantine/core";
-import { type UserId, type RideMemberLocationCheck } from "../api/types";
+import { type UserId, type RideMemberLocationCheck, type RideMode } from "../api/types";
 
 export interface RideVerifyTarget {
   memberId: UserId;
@@ -10,6 +10,7 @@ export interface RideVerifyTarget {
 
 export interface RideVerifyModalProps {
   target: RideVerifyTarget | null;
+  mode: RideMode;
   isVerifying: boolean;
   isSendingLocation: boolean;
   isReloadingStatus: boolean;
@@ -42,6 +43,7 @@ function formatTimestamp(iso: string): string {
 
 export function RideVerifyModal({
   target,
+  mode,
   isVerifying,
   isSendingLocation,
   isReloadingStatus,
@@ -54,29 +56,36 @@ export function RideVerifyModal({
   const isSelf = Boolean(target?.isSelf);
   const locationCheck = target?.locationCheck ?? null;
   const outcome = locationCheck ? describeOutcome(locationCheck.matched) : null;
+  const isTaxi = mode === "taxi";
+  const modalTitle = isTaxi ? "到着確認" : "集合確認";
+  const confirmLabel = isTaxi ? "合流済みにする" : "集合済みにする";
+  const selfIntro = isTaxi
+    ? "現在のネットワーク位置情報を送信して、主催者が合流を確認できるようにします。"
+    : "現在のネットワーク位置情報を送信して、ドライバーが近くにいたことを確認できるようにします。";
+  const caution = isTaxi
+    ? "位置情報は参加者自身が送信したものです。合流を直接確認してから確定してください。"
+    : "位置情報は参加者自身が送信したものです。必ず対面で確認してから確定してください。";
 
   return (
     <Modal
       opened={opened}
       onClose={onClose}
-      title="集合確認"
+      title={modalTitle}
       centered
     >
       <Stack gap="md">
         <Stack gap={6}>
           <Text size="sm">
             {isSelf
-              ? "現在のネットワーク位置情報を送信して、ドライバーが近くにいたことを確認できるようにします。"
-              : `以下のステータスを参考に、${target?.memberName ?? "このメンバー"}さんを集合済みに更新します。`}
+              ? selfIntro
+              : `以下のステータスを参考に、${target?.memberName ?? "このメンバー"}さんを${isTaxi ? "合流済み" : "集合済み"}に更新します。`}
           </Text>
           {isSelf ? (
             <Text size="xs" c="dimmed">
               公開IPアドレスを取得し、学校のAPIに集合場所付近かどうかを確認します。
             </Text>
           ) : (
-            <Text size="xs" c="dimmed">
-              位置情報は参加者自身が送信したものです。必ず対面で確認してから確定してください。
-            </Text>
+            <Text size="xs" c="dimmed">{caution}</Text>
           )}
         </Stack>
         <Stack gap={4}>
@@ -132,7 +141,7 @@ export function RideVerifyModal({
               loading={isVerifying}
               disabled={isReloadingStatus}
             >
-              集合済みにする
+              {confirmLabel}
             </Button>
           )}
         </Group>

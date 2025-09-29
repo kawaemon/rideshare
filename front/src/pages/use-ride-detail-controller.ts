@@ -263,10 +263,12 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       return "";
     }
     if (ride.driver.id === viewerUserId) {
-      return "あなたはドライバーです";
+      return ride.mode === "taxi" ? "あなたは主催者です" : "あなたはドライバーです";
     }
     if (ride.joined) {
-      return "このライドに参加しています";
+      return ride.mode === "taxi"
+        ? "このタクシー割り勘に参加しています"
+        : "このライドに参加しています";
     }
     return "";
   }, [ride, viewerUserId]);
