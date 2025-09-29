@@ -47,4 +47,4 @@ const port = Number(process.env.PORT ?? 8787);
 
 console.log(`API listening on http://localhost:${port}`);
 
-serve({ fetch: app.fetch, port });
+serve({ fetch: app.fetch, port, hostname: "0.0.0.0" });

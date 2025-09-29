@@ -10,4 +10,7 @@ export default defineConfig({
   esbuild: {
     target: "esnext",
   },
+  server: {
+    allowedHosts: ["la-ops"],
+  },
 });
