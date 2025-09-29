@@ -23,6 +23,7 @@ export function RideDetailPage() {
     verifyTarget,
     isVerifying,
     isSendingLocation,
+    isReloadingStatus,
     capacityStats,
     viewerRoleLabel,
     isDriver,
@@ -36,6 +37,7 @@ export function RideDetailPage() {
     handleLeave,
     handleConfirmVerification,
     handleSendLocation,
+    handleReloadVerificationStatus,
     openVerifyModal,
     openSelfVerifyModal,
     closeVerifyModal,
@@ -51,12 +53,16 @@ export function RideDetailPage() {
         target={verifyTarget}
         isVerifying={isVerifying}
         isSendingLocation={isSendingLocation}
+        isReloadingStatus={isReloadingStatus}
         onClose={closeVerifyModal}
         onConfirm={() => {
           void handleConfirmVerification();
         }}
         onSendLocation={() => {
           void handleSendLocation();
+        }}
+        onReloadStatus={() => {
+          void handleReloadVerificationStatus();
         }}
       />
       <Stack gap="lg">

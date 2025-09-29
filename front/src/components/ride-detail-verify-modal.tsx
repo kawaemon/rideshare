@@ -12,9 +12,11 @@ export interface RideVerifyModalProps {
   target: RideVerifyTarget | null;
   isVerifying: boolean;
   isSendingLocation: boolean;
+  isReloadingStatus: boolean;
   onClose: () => void;
   onConfirm: () => void;
   onSendLocation: () => void;
+  onReloadStatus: () => void;
 }
 
 function describeOutcome(outcome: boolean | null): {
@@ -42,9 +44,11 @@ export function RideVerifyModal({
   target,
   isVerifying,
   isSendingLocation,
+  isReloadingStatus,
   onClose,
   onConfirm,
   onSendLocation,
+  onReloadStatus,
 }: RideVerifyModalProps) {
   const opened = Boolean(target);
   const isSelf = Boolean(target?.isSelf);
@@ -78,9 +82,22 @@ export function RideVerifyModal({
           )}
         </Stack>
         <Stack gap={4}>
-          <Text size="xs" c="dimmed">
-            Latest verification status
-          </Text>
+          <Group justify="space-between" gap="xs" align="center">
+            <Text size="xs" c="dimmed">
+              Latest verification status
+            </Text>
+            {!isSelf && (
+              <Button
+                size="xs"
+                variant="light"
+                onClick={onReloadStatus}
+                loading={isReloadingStatus}
+                disabled={isVerifying || isSendingLocation}
+              >
+                Reload
+              </Button>
+            )}
+          </Group>
           {locationCheck ? (
             <Stack gap={4}>
               <Group gap="xs">
@@ -101,7 +118,7 @@ export function RideVerifyModal({
           <Button
             variant="default"
             onClick={onClose}
-            disabled={isVerifying || isSendingLocation}
+            disabled={isVerifying || isSendingLocation || isReloadingStatus}
           >
             {isSelf ? "Close" : "Cancel"}
           </Button>
@@ -115,6 +132,7 @@ export function RideVerifyModal({
                 onConfirm();
               }}
               loading={isVerifying}
+              disabled={isReloadingStatus}
             >
               Confirm
             </Button>

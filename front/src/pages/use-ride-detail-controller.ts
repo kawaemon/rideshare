@@ -11,6 +11,7 @@ export interface RideDetailState {
   verifyTarget: RideVerifyTarget | null;
   isVerifying: boolean;
   isSendingLocation: boolean;
+  isReloadingStatus: boolean;
   capacityStats: RideCapacityStats;
   viewerRoleLabel: string;
   isDriver: boolean;
@@ -25,6 +26,7 @@ export interface RideDetailHandlers {
   handleLeave: () => Promise<void>;
   handleConfirmVerification: () => Promise<void>;
   handleSendLocation: () => Promise<void>;
+  handleReloadVerificationStatus: () => Promise<void>;
   openVerifyModal: (member: RideMemberDetail) => void;
   openSelfVerifyModal: () => void;
   closeVerifyModal: () => void;
@@ -42,6 +44,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
   const [verifyTarget, setVerifyTarget] = useState<RideVerifyTarget | null>(null);
   const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [isSendingLocation, setIsSendingLocation] = useState<boolean>(false);
+  const [isReloadingStatus, setIsReloadingStatus] = useState<boolean>(false);
 
   const load = useCallback(async () => {
     if (!id) {
@@ -133,11 +136,41 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
   }, [viewerUserId, ride?.selfLocationCheck]);
 
   const closeVerifyModal = useCallback(() => {
-    if (isVerifying || isSendingLocation) {
+    if (isVerifying || isSendingLocation || isReloadingStatus) {
       return;
     }
     setVerifyTarget(null);
-  }, [isVerifying, isSendingLocation]);
+  }, [isVerifying, isSendingLocation, isReloadingStatus]);
+
+  const handleReloadVerificationStatus = useCallback(async () => {
+    if (!ride || !viewerUserId || !verifyTarget || verifyTarget.isSelf) {
+      return;
+    }
+    setIsReloadingStatus(true);
+    setError("");
+    try {
+      const res = await api.getRide(ride.id, viewerUserId);
+      if (!res.ok) {
+        setError(res.error);
+        return;
+      }
+      setRide(res.data);
+      setVerifyTarget((prev) => {
+        if (!prev || prev.isSelf) {
+          return prev;
+        }
+        const updatedMember = res.data.members.find((member) => {
+          return member.id === prev.memberId;
+        });
+        return {
+          ...prev,
+          locationCheck: updatedMember?.locationCheck ?? null,
+        };
+      });
+    } finally {
+      setIsReloadingStatus(false);
+    }
+  }, [ride, viewerUserId, verifyTarget]);
 
   const handleConfirmVerification = useCallback(async () => {
     if (!ride || !viewerUserId || !verifyTarget || verifyTarget.isSelf) {
@@ -244,6 +277,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       verifyTarget,
       isVerifying,
       isSendingLocation,
+      isReloadingStatus,
       capacityStats,
       viewerRoleLabel,
       isDriver,
@@ -257,6 +291,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       handleLeave,
       handleConfirmVerification,
       handleSendLocation,
+      handleReloadVerificationStatus,
       openVerifyModal,
       openSelfVerifyModal,
       closeVerifyModal,
