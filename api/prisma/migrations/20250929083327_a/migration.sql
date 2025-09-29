@@ -12,6 +12,8 @@ CREATE TABLE "Ride" (
     "fromSpot" TEXT NOT NULL,
     "departsAt" DATETIME NOT NULL,
     "capacity" INTEGER NOT NULL,
+    "mode" TEXT NOT NULL DEFAULT 'car',
+    "minParticipants" INTEGER,
     "note" TEXT NOT NULL DEFAULT '',
     "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Ride_driverId_fkey" FOREIGN KEY ("driverId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
@@ -22,6 +24,10 @@ CREATE TABLE "RideMember" (
     "rideId" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
     "joinedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "verifiedAt" DATETIME,
+    "locationCheckIp" TEXT,
+    "locationCheckResult" BOOLEAN,
+    "locationCheckedAt" DATETIME,
 
     PRIMARY KEY ("rideId", "userId"),
     CONSTRAINT "RideMember_rideId_fkey" FOREIGN KEY ("rideId") REFERENCES "Ride" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,

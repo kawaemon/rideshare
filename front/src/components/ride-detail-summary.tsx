@@ -1,5 +1,5 @@
 import { Badge, Divider, Group, Progress, Stack, Text } from "@mantine/core";
-import { type RideDetail } from "../api/types";
+import { type RideDetail, type RideMode } from "../api/types";
 import { formatDateTimeJst } from "../lib/datetime";
 import { labelDestination, labelFromSpot } from "../lib/labels";
 
@@ -16,6 +16,16 @@ export interface RideDetailSummaryProps {
   capacityStats: RideCapacityStats;
 }
 
+const rideModeBadgeColor: Record<RideMode, string> = {
+  car: "blue",
+  taxi: "grape",
+};
+
+const rideModeLabel: Record<RideMode, string> = {
+  car: "マイカー",
+  taxi: "タクシー割り勘",
+};
+
 export function RideDetailSummary({ ride, viewerRoleLabel, capacityStats }: RideDetailSummaryProps) {
   return (
     <Stack gap="xl">
@@ -26,6 +36,9 @@ export function RideDetailSummary({ ride, viewerRoleLabel, capacityStats }: Ride
           </Badge>
           <Badge variant="outline" color="gray">
             集合場所 {labelFromSpot(ride.fromSpot)}
+          </Badge>
+          <Badge color={rideModeBadgeColor[ride.mode]} variant="light">
+            {rideModeLabel[ride.mode]}
           </Badge>
           {viewerRoleLabel && (
             <Badge color="teal" variant="light">
@@ -59,6 +72,11 @@ export function RideDetailSummary({ ride, viewerRoleLabel, capacityStats }: Ride
           <Text size="sm" c="dimmed">
             {capacityStats.capacityLabel}
           </Text>
+          {ride.mode === "taxi" && ride.minParticipants && (
+            <Text size="sm" c="dimmed">
+              最低催行人数: {ride.minParticipants}人
+            </Text>
+          )}
         </Stack>
         <Stack gap={6}>
           <Text size="sm" c="dimmed">

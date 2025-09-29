@@ -25,27 +25,63 @@ export const IsoDateTimeSchema = z.string().refine(
   { message: "invalid_datetime" },
 );
 
-export const CreateRideSchema = z
+export const RideModeSchema = z.enum(["car", "taxi"]);
+export type RideMode = z.infer<typeof RideModeSchema>;
+
+const noteSchema = z.string().max(200).optional();
+
+function ensureRouteIsValid(
+  value: { destination: Destination; fromSpot: FromSpot },
+  ctx: z.RefinementCtx,
+) {
+  const destinationIsStation = isStation(value.destination);
+  const fromIsStation = isStation(value.fromSpot);
+
+  if (destinationIsStation === fromIsStation) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "invalid_route",
+      path: ["destination"],
+    });
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "invalid_route", path: ["fromSpot"] });
+  }
+}
+
+const baseRideFields = {
+  destination: DestinationSchema,
+  fromSpot: FromSpotSchema,
+  departsAt: IsoDateTimeSchema,
+  capacity: z.number().int().min(1),
+  note: noteSchema,
+};
+
+const CreateCarRideSchema = z
   .object({
-    destination: DestinationSchema,
-    fromSpot: FromSpotSchema,
-    departsAt: IsoDateTimeSchema,
-    capacity: z.number().int().min(1),
-    note: z.string().max(200).optional(),
+    mode: z.literal("car"),
+    ...baseRideFields,
   })
   .superRefine((value, ctx) => {
-    const destinationIsStation = isStation(value.destination);
-    const fromIsStation = isStation(value.fromSpot);
+    ensureRouteIsValid(value, ctx);
+  });
 
-    if (destinationIsStation === fromIsStation) {
+const CreateTaxiRideSchema = z
+  .object({
+    mode: z.literal("taxi"),
+    ...baseRideFields,
+    minParticipants: z.number().int().min(2),
+  })
+  .superRefine((value, ctx) => {
+    ensureRouteIsValid(value, ctx);
+    if (value.minParticipants > value.capacity) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "invalid_route",
-        path: ["destination"],
+        message: "min_over_capacity",
+        path: ["minParticipants"],
       });
-      ctx.addIssue({ code: z.ZodIssueCode.custom, message: "invalid_route", path: ["fromSpot"] });
     }
   });
+
+export const CreateRideSchema = z.discriminatedUnion("mode", [CreateCarRideSchema, CreateTaxiRideSchema]);
 export type CreateRideInput = z.infer<typeof CreateRideSchema>;
 
 export const RideIdParamSchema = z.coerce.number().int().positive();

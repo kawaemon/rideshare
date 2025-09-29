@@ -9,6 +9,8 @@ interface BaseRideData {
   fromSpot: string;
   departsAt: string;
   capacity: number;
+  mode: "car" | "taxi";
+  minParticipants: number | null;
   note: string;
 }
 

@@ -7,6 +7,7 @@ import type {
   RideListItem,
   RideWithDriver,
   RideMemberLocationCheck,
+  RideMode,
   Result,
   User,
   UserId,
@@ -71,6 +72,8 @@ export async function listRides(
     fromSpot: FromSpot;
     departsAt: string;
     capacity: number;
+    mode: RideMode;
+    minParticipants: number | null;
     note: string;
     membersCount: number;
     joined: boolean;
@@ -87,6 +90,8 @@ export async function listRides(
     fromSpot: x.fromSpot,
     departsAt: x.departsAt,
     capacity: x.capacity,
+    mode: x.mode,
+    minParticipants: x.minParticipants,
     note: x.note ?? "",
     membersCount: x.membersCount,
     joined: Boolean(x.joined),
@@ -120,6 +125,8 @@ export async function createRide(
     fromSpot: FromSpot;
     departsAt: string;
     capacity: number;
+    mode: RideMode;
+    minParticipants: number | null;
     note: string;
     createdAt: string;
   };
@@ -136,6 +143,8 @@ export async function createRide(
     fromSpot: r.data.fromSpot,
     departsAt: r.data.departsAt,
     capacity: r.data.capacity,
+    mode: r.data.mode,
+    minParticipants: r.data.minParticipants,
     note: r.data.note,
     createdAt: r.data.createdAt,
     driver: { id: asUserId(r.data.driver.id), name: r.data.driver.id },
@@ -160,6 +169,8 @@ export async function getRide(
     fromSpot: FromSpot;
     departsAt: string;
     capacity: number;
+    mode: RideMode;
+    minParticipants: number | null;
     note: string;
     createdAt: string;
     membersCount: number;
@@ -199,6 +210,8 @@ export async function getRide(
     fromSpot: r.data.fromSpot,
     departsAt: r.data.departsAt,
     capacity: r.data.capacity,
+    mode: r.data.mode,
+    minParticipants: r.data.minParticipants,
     note: r.data.note,
     createdAt: r.data.createdAt,
     driver: { id: asUserId(r.data.driver.id), name: r.data.driver.id },
@@ -268,6 +281,8 @@ export async function listMyRides(
     fromSpot: FromSpot;
     departsAt: string;
     capacity: number;
+    mode: RideMode;
+    minParticipants: number | null;
     note: string;
     membersCount: number;
     joined: boolean;
@@ -284,6 +299,8 @@ export async function listMyRides(
     fromSpot: x.fromSpot,
     departsAt: x.departsAt,
     capacity: x.capacity,
+    mode: x.mode,
+    minParticipants: x.minParticipants,
     note: x.note ?? "",
     membersCount: x.membersCount,
     joined: Boolean(x.joined),

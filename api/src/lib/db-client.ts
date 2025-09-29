@@ -13,6 +13,8 @@ export type RideMember = {
   locationCheckedAt: Date | null;
   user?: User;
 };
+export type RideMode = "car" | "taxi";
+
 export type Ride = {
   id: number;
   driverId: string;
@@ -21,6 +23,8 @@ export type Ride = {
   fromSpot: string;
   departsAt: Date;
   capacity: number;
+  mode: RideMode;
+  minParticipants: number | null;
   note: string;
   createdAt: Date;
   members?: RideMember[];
@@ -51,6 +55,8 @@ export interface DbClient {
     fromSpot: string;
     departsAt: Date;
     capacity: number;
+    mode: RideMode;
+    minParticipants: number | null;
     note?: string;
   }): Promise<Ride>;
   findRideById(id: number): Promise<Ride | null>;
@@ -101,6 +107,8 @@ function toDomainRide(ride: RideWithDriverRow): Ride {
     fromSpot: ride.fromSpot,
     departsAt: ride.departsAt,
     capacity: ride.capacity,
+    mode: ride.mode === "taxi" ? "taxi" : "car",
+    minParticipants: ride.minParticipants ?? null,
     note: ride.note,
     createdAt: ride.createdAt,
   };
@@ -177,6 +185,8 @@ class PrismaDbClient implements DbClient {
     fromSpot: string;
     departsAt: Date;
     capacity: number;
+    mode: RideMode;
+    minParticipants: number | null;
     note?: string | undefined;
   }): Promise<Ride> {
     const db = getDb();

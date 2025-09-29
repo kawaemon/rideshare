@@ -23,6 +23,8 @@ model Ride {
   fromSpot    String
   departsAt   DateTime
   capacity    Int
+  mode        String       @default("car")
+  minParticipants Int?
   note        String       @default("")
   createdAt   DateTime     @default(now())
   driver      User         @relation(fields: [driverId], references: [id])

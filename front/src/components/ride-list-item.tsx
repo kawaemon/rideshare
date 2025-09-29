@@ -1,7 +1,7 @@
 import { Badge, Group, Paper, Stack, Text } from "@mantine/core";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import type { RideListItem, UserId } from "../api/types";
+import type { RideListItem, RideMode, UserId } from "../api/types";
 import { formatDateTimeJst } from "../lib/datetime";
 import { labelDestination, labelFromSpot } from "../lib/labels";
 
@@ -12,6 +12,16 @@ interface RideListItemCardProps {
 }
 
 type RideRole = "driver" | "member" | null;
+
+const rideModeBadgeColor: Record<RideMode, string> = {
+  car: "blue",
+  taxi: "grape",
+};
+
+const rideModeLabel: Record<RideMode, string> = {
+  car: "マイカー",
+  taxi: "タクシー割り勘",
+};
 
 function getRoleForViewer(ride: RideListItem, viewerId?: UserId): RideRole {
   if (!viewerId) {
@@ -47,6 +57,9 @@ export function RideListItemCard({
               >
                 {labelDestination(ride.destination)}（集合: {labelFromSpot(ride.fromSpot)}）
               </Text>
+              <Badge color={rideModeBadgeColor[ride.mode]} variant="light">
+                {rideModeLabel[ride.mode]}
+              </Badge>
               {role && (
                 <Badge
                   color={role === "driver" ? "blue" : "teal"}
@@ -57,7 +70,10 @@ export function RideListItemCard({
               )}
             </Group>
             <Text size="sm" c="dimmed">
-              出発: {formatDateTimeJst(ride.departsAt)} JST / ドライバー {ride.driver.name} / {ride.membersCount}/{ride.capacity}人
+              出発: {formatDateTimeJst(ride.departsAt)} JST / ドライバー {ride.driver.name} /
+              {" "}
+              {ride.membersCount}/{ride.capacity}人
+              {ride.mode === "taxi" && ride.minParticipants ? ` / 最低催行 ${ride.minParticipants}人` : ""}
             </Text>
           </Stack>
           {actions}

@@ -238,11 +238,18 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       ride.capacity > 0
         ? Math.min((ride.membersCount / ride.capacity) * 100, 100)
         : 0;
-    const progressColor = seatsRemaining > 0 ? "teal" : "red";
-    const capacityLabel =
-      seatsRemaining > 0
-        ? `残り${seatsRemaining}席`
-        : "満席";
+    const seatsLabel = seatsRemaining > 0 ? `残り${seatsRemaining}席` : "満席";
+    let progressColor = seatsRemaining > 0 ? "teal" : "red";
+    let capacityLabel = seatsLabel;
+    if (ride.mode === "taxi" && ride.minParticipants) {
+      const neededForTaxi = Math.max(ride.minParticipants - ride.membersCount, 0);
+      if (neededForTaxi > 0) {
+        capacityLabel = `${seatsLabel} / 催行まであと${neededForTaxi}人`;
+        progressColor = "orange";
+      } else {
+        capacityLabel = `${seatsLabel} / 催行可能`;
+      }
+    }
     return {
       seatsRemaining,
       progressValue: utilization,

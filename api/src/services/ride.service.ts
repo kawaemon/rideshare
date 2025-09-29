@@ -24,6 +24,8 @@ export class RideService {
       fromSpot: r.fromSpot,
       departsAt: r.departsAt.toISOString(),
       capacity: r.capacity,
+      mode: r.mode,
+      minParticipants: r.minParticipants,
       note: r.note,
       membersCount: r.members?.length ?? 0,
       joined: viewerId ? Boolean(r.members?.some((m) => m.userId === viewerId)) : false,
@@ -43,6 +45,8 @@ export class RideService {
       fromSpot: input.fromSpot,
       departsAt: new Date(input.departsAt),
       capacity: input.capacity,
+      mode: input.mode,
+      minParticipants: input.mode === "taxi" ? input.minParticipants : null,
       note: input.note ?? "",
     });
     return {
@@ -54,6 +58,8 @@ export class RideService {
         fromSpot: ride.fromSpot,
         departsAt: ride.departsAt.toISOString(),
         capacity: ride.capacity,
+        mode: ride.mode,
+        minParticipants: ride.minParticipants,
         note: ride.note,
         createdAt: ride.createdAt.toISOString(),
       },
@@ -91,6 +97,8 @@ export class RideService {
         fromSpot: r.fromSpot,
         departsAt: r.departsAt.toISOString(),
         capacity: r.capacity,
+        mode: r.mode,
+        minParticipants: r.minParticipants,
         note: r.note,
         createdAt: r.createdAt.toISOString(),
         membersCount: r.members.length,
@@ -154,6 +162,8 @@ export class RideService {
         fromSpot: string;
         departsAt: string;
         capacity: number;
+        mode: "car" | "taxi";
+        minParticipants: number | null;
         note: string;
         membersCount: number;
         joined: boolean;
@@ -179,6 +189,8 @@ export class RideService {
       fromSpot: r.fromSpot,
       departsAt: r.departsAt.toISOString(),
       capacity: r.capacity,
+      mode: r.mode,
+      minParticipants: r.minParticipants,
       note: r.note,
       membersCount: r.members.length,
       joined: r.members.some((m) => m.userId === uid),

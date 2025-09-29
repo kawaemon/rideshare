@@ -8,6 +8,9 @@ export type Location = Station | CampusSpot;
 export type Destination = Location;
 export type FromSpot = Location;
 
+export const rideModes = ["car", "taxi"] as const;
+export type RideMode = (typeof rideModes)[number];
+
 // Branded ID types (compile-time only)
 declare const UserIdBrand: unique symbol;
 export type UserId = string & { readonly [UserIdBrand]: true };
@@ -30,6 +33,8 @@ export interface Ride {
   fromSpot: FromSpot;
   departsAt: string; // ISO8601
   capacity: number;
+  mode: RideMode;
+  minParticipants: number | null;
   note: string;
   createdAt: string; // ISO8601
 }
@@ -64,6 +69,8 @@ export interface RideListItem {
   fromSpot: FromSpot;
   departsAt: string;
   capacity: number;
+  mode: RideMode;
+  minParticipants: number | null;
   note: string;
   membersCount: number;
   joined?: boolean;
