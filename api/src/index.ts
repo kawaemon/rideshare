@@ -5,6 +5,7 @@ import { serve } from "@hono/node-server";
 import { logger } from "hono/logger";
 import { rideRoutes, meRoutes } from "./routes/ride.routes";
 import { userRoutes } from "./routes/user.routes";
+import { dashboardRoutes } from "./routes/dashboard.routes";
 import { ok } from "./lib/http";
 
 const app = new Hono();
@@ -40,6 +41,7 @@ app.get("/", (c) => c.text("rideshare api"));
 app.route("/rides", rideRoutes);
 app.route("/me", meRoutes);
 app.route("/", userRoutes);
+app.route("/", dashboardRoutes);
 
 const port = Number(process.env.PORT ?? 8787);
 
