@@ -38,21 +38,21 @@ export function MePage() {
   return (
     <Stack>
       <Group justify="space-between" align="center">
-        <Title order={2}>My Rides</Title>
+        <Title order={2}>参加状況</Title>
         <SegmentedControl
           value={role}
           onChange={(value) => {
             if (isRoleFilter(value)) setRole(value);
           }}
           data={[
-            { label: "All", value: "all" },
-            { label: "Driver", value: "driver" },
-            { label: "Member", value: "member" },
+            { label: "すべて", value: "all" },
+            { label: "ドライバー", value: "driver" },
+            { label: "参加者", value: "member" },
           ]}
         />
       </Group>
       {error && <Alert color="red">{error}</Alert>}
-      {!error && items.length === 0 && <Text c="dimmed">No rides.</Text>}
+      {!error && items.length === 0 && <Text c="dimmed">該当するライドはありません。</Text>}
       <Stack>
         {items.map((ride) => (
           <RideListItemCard

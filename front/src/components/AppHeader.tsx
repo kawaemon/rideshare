@@ -19,14 +19,14 @@ export function AppHeader() {
           to="/"
           style={{ textDecoration: "none" }}
         >
-          Rideshare Demo
+          ライドシェア デモ
         </Text>
         <Button
           variant={loc.pathname === "/" ? "filled" : "subtle"}
           component={Link}
           to="/"
         >
-          Home
+          ホーム
         </Button>
         <Button
           variant={loc.pathname.startsWith("/ride/new") ? "filled" : "subtle"}
@@ -38,13 +38,13 @@ export function AppHeader() {
               notifications.show({
                 id: "login-required",
                 color: "red",
-                title: "Login required",
-                message: "Please login to continue",
+                title: "ログインが必要です",
+                message: "続行するにはログインしてください",
               });
             }
           }}
         >
-          Create
+          募集する
         </Button>
         <Button
           variant={loc.pathname.startsWith("/me") ? "filled" : "subtle"}
@@ -56,28 +56,28 @@ export function AppHeader() {
               notifications.show({
                 id: "login-required",
                 color: "red",
-                title: "Login required",
-                message: "Please login to continue",
+                title: "ログインが必要です",
+                message: "続行するにはログインしてください",
               });
             }
           }}
         >
-          My Rides
+          参加状況
         </Button>
       </Group>
       <Group gap="sm" wrap="nowrap">
         {userId ? (
           <>
-            <Text c="dimmed">user: {userId}</Text>
+            <Text c="dimmed">ユーザー: {userId}</Text>
             <Button variant="light" color="red" onClick={() => setUserId("")}>
-              Logout
+              ログアウト
             </Button>
           </>
         ) : (
           <>
-            <Text c="dimmed">not logged in</Text>
+            <Text c="dimmed">未ログイン</Text>
             <Button onClick={open} variant="light">
-              Login
+              ログイン
             </Button>
           </>
         )}

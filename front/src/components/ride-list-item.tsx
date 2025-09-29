@@ -45,21 +45,19 @@ export function RideListItemCard({
                 to={`/ride/${ride.id}`}
                 style={{ textDecoration: "none" }}
               >
-                {labelDestination(ride.destination)} from{" "}
-                {labelFromSpot(ride.fromSpot)}
+                {labelDestination(ride.destination)}（集合: {labelFromSpot(ride.fromSpot)}）
               </Text>
               {role && (
                 <Badge
                   color={role === "driver" ? "blue" : "teal"}
                   variant="light"
                 >
-                  {role === "driver" ? "Driver" : "Member"}
+                  {role === "driver" ? "ドライバー" : "参加者"}
                 </Badge>
               )}
             </Group>
             <Text size="sm" c="dimmed">
-              departs {formatDateTimeJst(ride.departsAt)} JST / driver{" "}
-              {ride.driver.name} / {ride.membersCount}/{ride.capacity}
+              出発: {formatDateTimeJst(ride.departsAt)} JST / ドライバー {ride.driver.name} / {ride.membersCount}/{ride.capacity}人
             </Text>
           </Stack>
           {actions}

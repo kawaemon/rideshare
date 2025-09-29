@@ -14,10 +14,10 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
     return (
       <Stack gap="sm">
         <Text size="sm" c="dimmed">
-          Members
+          参加者
         </Text>
         <Text size="sm" c="dimmed">
-          No members yet.
+          まだ参加者はいません。
         </Text>
       </Stack>
     );
@@ -26,7 +26,7 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
   return (
     <Stack gap="sm">
       <Text size="sm" c="dimmed">
-        Members
+        参加者
       </Text>
       <Stack gap={8}>
         {members.map((member) => {
@@ -42,7 +42,7 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
               <Text>{member.name}</Text>
               {member.verified ? (
                 <Badge color="teal" variant="light">
-                  Met
+                  集合済み
                 </Badge>
               ) : (
                 <Button
@@ -54,7 +54,7 @@ export function RideMembersSection({ members, isVerifying, verifyTarget, onOpenV
                   loading={isPendingVerification}
                   disabled={isLockedDuringVerification}
                 >
-                  Meet up
+                  集合確認
                 </Button>
               )}
             </Group>

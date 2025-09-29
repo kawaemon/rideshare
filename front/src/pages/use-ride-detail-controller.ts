@@ -54,7 +54,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
 
     const numericId = Number(id);
     if (Number.isNaN(numericId)) {
-      setError("Invalid ride id");
+      setError("不正なライドIDです");
       setRide(null);
       return;
     }
@@ -129,7 +129,7 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
     }
     setVerifyTarget({
       memberId: viewerUserId,
-      memberName: "your arrival",
+      memberName: "あなたの到着",
       isSelf: true,
       locationCheck: ride?.selfLocationCheck ?? null,
     });
@@ -241,8 +241,8 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
     const progressColor = seatsRemaining > 0 ? "teal" : "red";
     const capacityLabel =
       seatsRemaining > 0
-        ? `${seatsRemaining} seat${seatsRemaining === 1 ? "" : "s"} left`
-        : "Fully booked";
+        ? `残り${seatsRemaining}席`
+        : "満席";
     return {
       seatsRemaining,
       progressValue: utilization,
@@ -256,10 +256,10 @@ export function useRideDetailController(id: string | undefined, viewerUserId: Us
       return "";
     }
     if (ride.driver.id === viewerUserId) {
-      return "You are the driver";
+      return "あなたはドライバーです";
     }
     if (ride.joined) {
-      return "You joined this ride";
+      return "このライドに参加しています";
     }
     return "";
   }, [ride, viewerUserId]);

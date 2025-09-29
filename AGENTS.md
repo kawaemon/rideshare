@@ -7,6 +7,7 @@
 - ルート: `api/`（Hono + Prisma + SQLite）, `front/`（Vite + React + Mantine）。
 - 推奨配置: `api/src/`（ルート/ハンドラ）, `api/src/lib/`（DB/Auth 等）, `api/prisma/schema.prisma`。
 - フロントは `front/src/pages/`, `front/src/components/` の 2 レイヤで簡潔に。
+- 会話数を削減するためファイルに対する変更はなるべく一斉に行うよう努めること。
 
 ## モジュール分離（最重要）
 

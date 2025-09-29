@@ -25,7 +25,7 @@ export function RideDetailSummary({ ride, viewerRoleLabel, capacityStats }: Ride
             {labelDestination(ride.destination)}
           </Badge>
           <Badge variant="outline" color="gray">
-            from {labelFromSpot(ride.fromSpot)}
+            集合場所 {labelFromSpot(ride.fromSpot)}
           </Badge>
           {viewerRoleLabel && (
             <Badge color="teal" variant="light">
@@ -34,23 +34,23 @@ export function RideDetailSummary({ ride, viewerRoleLabel, capacityStats }: Ride
           )}
         </Group>
         <Text size="sm" c="dimmed">
-          Departs at {formatDateTimeJst(ride.departsAt)} JST
+          出発時刻: {formatDateTimeJst(ride.departsAt)} JST
         </Text>
       </Stack>
       <Divider />
       <Group gap="xl" align="flex-start" grow>
         <Stack gap={6}>
           <Text size="sm" c="dimmed">
-            Driver
+            ドライバー
           </Text>
           <Text fw={600}>{ride.driver.name}</Text>
           <Text size="sm" c="dimmed">
-            Organizer of this ride
+            このライドの主催者
           </Text>
         </Stack>
         <Stack gap={6}>
           <Text size="sm" c="dimmed">
-            Seats
+            定員
           </Text>
           <Text fw={600}>
             {ride.membersCount}/{ride.capacity}
@@ -62,18 +62,18 @@ export function RideDetailSummary({ ride, viewerRoleLabel, capacityStats }: Ride
         </Stack>
         <Stack gap={6}>
           <Text size="sm" c="dimmed">
-            Meeting point
+            集合場所
           </Text>
           <Text fw={600}>{labelFromSpot(ride.fromSpot)}</Text>
           <Text size="sm" c="dimmed">
-            Heading to {labelDestination(ride.destination)}
+            行き先: {labelDestination(ride.destination)}
           </Text>
         </Stack>
       </Group>
       {ride.note && (
         <Stack gap={4}>
           <Text size="sm" c="dimmed">
-            Driver's note
+            ドライバーからのメモ
           </Text>
           <Text>{ride.note}</Text>
         </Stack>

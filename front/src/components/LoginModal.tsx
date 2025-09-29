@@ -36,27 +36,27 @@ export function LoginModal({ opened, onClose }: Props) {
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Login" centered>
+    <Modal opened={opened} onClose={onClose} title="ログイン" centered>
       <form onSubmit={onSubmit}>
         <Stack>
           <TextInput
-            label="User ID"
-            placeholder="ascii lowercase (e.g. kawaemon)"
+            label="ユーザーID"
+            placeholder="半角小文字（例: kawaemon）"
             value={id}
             onChange={(e) => setId(e.currentTarget.value)}
             autoFocus
           />
           <PasswordInput
-            label="Password"
+            label="パスワード"
             // placeholder="not validated for demo"
             value={pw}
             onChange={(e) => setPw(e.currentTarget.value)}
           />
           <Group justify="flex-end">
             <Button type="button" variant="default" onClick={onClose}>
-              Cancel
+              キャンセル
             </Button>
-            <Button type="submit">Login</Button>
+            <Button type="submit">ログイン</Button>
           </Group>
         </Stack>
       </form>

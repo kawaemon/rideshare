@@ -30,8 +30,8 @@ type RideDirection = "from_school" | "to_school";
 const rideDirectionOptions: Array<
   SegmentedControlItem & { value: RideDirection }
 > = [
-  { label: "From School", value: "from_school" },
-  { label: "To School", value: "to_school" },
+  { label: "学校発", value: "from_school" },
+  { label: "学校行き", value: "to_school" },
 ];
 
 export function NewRidePage() {
@@ -53,7 +53,7 @@ export function NewRidePage() {
   const submit = async () => {
     setError("");
     if (!userId) {
-      setError("unauthorized");
+      setError("認証されていません");
       return;
     }
     const departsAtIso = departsAt ? departsAt.toISOString() : "";
@@ -73,11 +73,11 @@ export function NewRidePage() {
 
   return (
     <Stack>
-      <Title order={2}>Create Ride</Title>
+      <Title order={2}>ライドを作成</Title>
       {error && <Alert color="red">{error}</Alert>}
       <Stack gap={4}>
         <Text size="sm" fw={500}>
-          Direction
+          方向
         </Text>
         <SegmentedControl
           fullWidth
@@ -94,8 +94,8 @@ export function NewRidePage() {
       </Stack>
       <Group grow>
         <Select
-          label="From"
-          placeholder="Pick one"
+          label="集合場所"
+          placeholder="選択してください"
           data={fromSpotChoices.map((value) => ({
             value,
             label: labelFromSpot(value),
@@ -111,8 +111,8 @@ export function NewRidePage() {
           }}
         />
         <Select
-          label="Destination"
-          placeholder="Pick one"
+          label="目的地"
+          placeholder="選択してください"
           data={destinationChoices.map((value) => ({
             value,
             label: labelDestination(value),
@@ -131,8 +131,8 @@ export function NewRidePage() {
         />
       </Group>
       <DateTimePicker
-        label="Departs At"
-        placeholder="Pick date and time"
+        label="出発時刻"
+        placeholder="日時を選択"
         value={departsAt}
         onChange={(value) => setDepartsAt(value)}
         valueFormat="YYYY/MM/DD HH:mm"
@@ -140,19 +140,19 @@ export function NewRidePage() {
         clearable
       />
       <NumberInput
-        label="Capacity"
+        label="定員"
         min={1}
         value={capacity}
         onChange={(v) => setCapacity(Number(v) || 1)}
       />
       <TextInput
-        label="Note"
+        label="メモ"
         value={note}
         onChange={(e) => setNote(e.currentTarget.value)}
       />
-      <Button onClick={submit}>Create</Button>
+      <Button onClick={submit}>作成する</Button>
       <Text c="dimmed">
-        Selected local time is converted to JST automatically.
+        選択した日時は自動的に日本標準時に変換されます。
       </Text>
     </Stack>
   );

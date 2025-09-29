@@ -44,7 +44,7 @@ export function RideDetailPage() {
   } = handlers;
 
   if (!id) {
-    return <Text>Invalid ID</Text>;
+    return <Text>不正なIDです</Text>;
   }
 
   return (
@@ -68,13 +68,13 @@ export function RideDetailPage() {
       <Stack gap="lg">
         <Group justify="space-between" align="flex-start">
           <Stack gap={4}>
-            <Title order={2}>Ride detail</Title>
+            <Title order={2}>ライド詳細</Title>
             <Text size="sm" c="dimmed">
-              Check the full plan before you decide to hop in.
+              参加を決める前に、内容を確認しましょう。
             </Text>
           </Stack>
           <Button component={Link} to="/" variant="light">
-            Back to rides
+            一覧に戻る
           </Button>
         </Group>
         {error && <Alert color="red">{error}</Alert>}
@@ -84,13 +84,13 @@ export function RideDetailPage() {
             <Group justify="center">
               <Stack gap="xs" align="center">
                 <Text size="sm" c="dimmed">
-                  Loading ride information...
+                  ライド情報を読み込み中...
                 </Text>
               </Stack>
             </Group>
           )}
           {!isLoading && !ride && !error && (
-            <Text c="dimmed">Ride not found.</Text>
+            <Text c="dimmed">ライドが見つかりません。</Text>
           )}
           {ride && (
             <Stack gap="xl">

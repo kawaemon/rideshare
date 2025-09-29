@@ -36,7 +36,7 @@ export function RideDetailActions({
             void onDelete();
           }}
         >
-          Delete ride
+          募集を削除
         </Button>
       )}
       {showJoin && (
@@ -45,7 +45,7 @@ export function RideDetailActions({
             void onJoin();
           }}
         >
-          Join ride
+          参加する
         </Button>
       )}
       {showSelfVerify && (
@@ -57,7 +57,7 @@ export function RideDetailActions({
             onSelfVerify();
           }}
         >
-          {ride.verified ? "Already met" : "Meet up"}
+          {ride.verified ? "集合済み" : "集合確認"}
         </Button>
       )}
       {showLeave && (
@@ -67,7 +67,7 @@ export function RideDetailActions({
             void onLeave();
           }}
         >
-          Leave ride
+          参加を取り消す
         </Button>
       )}
     </Group>

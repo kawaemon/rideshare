@@ -24,12 +24,12 @@ function describeOutcome(outcome: boolean | null): {
   color: string;
 } {
   if (outcome === true) {
-    return { label: "Near meeting point", color: "teal" };
+    return { label: "集合場所付近", color: "teal" };
   }
   if (outcome === false) {
-    return { label: "Away from meeting point", color: "red" };
+    return { label: "集合場所から離れています", color: "red" };
   }
-  return { label: "Could not confirm", color: "gray" };
+  return { label: "判定できません", color: "gray" };
 }
 
 function formatTimestamp(iso: string): string {
@@ -59,32 +59,30 @@ export function RideVerifyModal({
     <Modal
       opened={opened}
       onClose={onClose}
-      title="Meet up confirmation"
+      title="集合確認"
       centered
     >
       <Stack gap="md">
         <Stack gap={6}>
           <Text size="sm">
             {isSelf
-              ? "Send your current network location so the driver can see you were nearby."
-              : `We will mark ${target?.memberName ?? "this member"} as met. Use the status below as a hint.`}
+              ? "現在のネットワーク位置情報を送信して、ドライバーが近くにいたことを確認できるようにします。"
+              : `以下のステータスを参考に、${target?.memberName ?? "このメンバー"}さんを集合済みに更新します。`}
           </Text>
           {isSelf ? (
             <Text size="xs" c="dimmed">
-              We capture your public IP and ask the school API if it is close to
-              the meeting point.
+              公開IPアドレスを取得し、学校のAPIに集合場所付近かどうかを確認します。
             </Text>
           ) : (
             <Text size="xs" c="dimmed">
-              Location data comes from the member. Confirm only after you meet
-              in person.
+              位置情報は参加者自身が送信したものです。必ず対面で確認してから確定してください。
             </Text>
           )}
         </Stack>
         <Stack gap={4}>
           <Group justify="space-between" gap="xs" align="center">
             <Text size="xs" c="dimmed">
-              Latest verification status
+              最新の確認状況
             </Text>
             {!isSelf && (
               <Button
@@ -94,7 +92,7 @@ export function RideVerifyModal({
                 loading={isReloadingStatus}
                 disabled={isVerifying || isSendingLocation}
               >
-                Reload
+                再読み込み
               </Button>
             )}
           </Group>
@@ -102,7 +100,7 @@ export function RideVerifyModal({
             <Stack gap={4}>
               <Group gap="xs">
                 <Badge color={outcome?.color ?? "gray"} variant="light">
-                  {outcome?.label ?? "Unknown"}
+                  {outcome?.label ?? "不明"}
                 </Badge>
                 <Text size="xs" c="dimmed">
                   {formatTimestamp(locationCheck.checkedAt)}
@@ -111,7 +109,7 @@ export function RideVerifyModal({
               <Text size="xs">IP: {locationCheck.ip}</Text>
             </Stack>
           ) : (
-            <Text size="xs">No submission yet.</Text>
+            <Text size="xs">まだ送信がありません。</Text>
           )}
         </Stack>
         <Group justify="flex-end" gap="sm">
@@ -120,11 +118,11 @@ export function RideVerifyModal({
             onClick={onClose}
             disabled={isVerifying || isSendingLocation || isReloadingStatus}
           >
-            {isSelf ? "Close" : "Cancel"}
+            {isSelf ? "閉じる" : "キャンセル"}
           </Button>
           {isSelf ? (
             <Button onClick={onSendLocation} loading={isSendingLocation}>
-              Send location
+              位置情報を送信
             </Button>
           ) : (
             <Button
@@ -134,7 +132,7 @@ export function RideVerifyModal({
               loading={isVerifying}
               disabled={isReloadingStatus}
             >
-              Confirm
+              集合済みにする
             </Button>
           )}
         </Group>

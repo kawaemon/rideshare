@@ -20,8 +20,8 @@ export default function App() {
       notifications.show({
         id: "login-required",
         color: "red",
-        title: "Login required",
-        message: "Please login to continue",
+        title: "ログインが必要です",
+        message: "続行するにはログインしてください",
       });
       // Clear state to prevent duplicate notifications (incl. React StrictMode)
       navigate(location.pathname, { replace: true, state: {} });

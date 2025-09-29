@@ -55,7 +55,7 @@ export function HomePage() {
             void handleLeave(ride.id);
           }}
         >
-          Leave
+          参加を取り消す
         </Button>
       );
     }
@@ -66,7 +66,7 @@ export function HomePage() {
           void handleJoin(ride.id);
         }}
       >
-        Join
+        参加する
       </Button>
     );
   };
@@ -79,13 +79,13 @@ export function HomePage() {
   return (
     <Stack>
       <Group justify="space-between">
-        <Title order={2}>Rides</Title>
+        <Title order={2}>ライド一覧</Title>
         <Button component={Link} to="/ride/new">
-          Create
+          募集を作成
         </Button>
       </Group>
       {error && <Alert color="red">{error}</Alert>}
-      {!error && items.length === 0 && <Text c="dimmed">No rides.</Text>}
+      {!error && items.length === 0 && <Text c="dimmed">募集中のライドはありません。</Text>}
       <Stack>
         {items.map((r) => (
           <RideListItemCard
